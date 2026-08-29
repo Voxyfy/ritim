@@ -303,7 +303,7 @@ Issue ve pull request'lere açığız. Kod standardı:
 |---|---|
 | Destek sayfası | https://voxyfy.github.io/ritim/destek.html |
 | Gizlilik politikası | https://voxyfy.github.io/ritim/gizlilik.html |
-| E-posta | batuhan@rodosgrup.com |
+| E-posta | haymana.batuhan@gmail.com |
 
 Sayfaların kaynağı `docs/` klasöründedir ve GitHub Pages ile yayınlanır.
 
