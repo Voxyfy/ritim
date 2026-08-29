@@ -1,0 +1,137 @@
+{
+  "id": "kpss-lisans",
+  "name": "KPSS Lisans · GY-GK",
+  "group": "Kamu sınavları",
+  "description": "Genel Yetenek ve Genel Kültür oturumunun yedi ders başlığı.",
+  "subjects": [
+    {
+      "name": "Türkçe",
+      "colorIndex": 0,
+      "topics": [
+        "Sözcükte Anlam",
+        "Cümlede Anlam",
+        "Paragrafta Ana Düşünce",
+        "Paragrafta Yapı",
+        "Paragrafı Tamamlama",
+        "Anlatım Biçimleri",
+        "Sözel Mantık",
+        "Ses ve Yapı Bilgisi",
+        "Sözcük Türleri",
+        "Cümlenin Ögeleri",
+        "Anlatım Bozuklukları",
+        "Yazım Kuralları",
+        "Noktalama İşaretleri"
+      ]
+    },
+    {
+      "name": "Matematik",
+      "colorIndex": 1,
+      "topics": [
+        "Temel Kavramlar",
+        "Sayı Basamakları",
+        "Bölme ve Bölünebilme",
+        "EBOB - EKOK",
+        "Rasyonel Sayılar",
+        "Basit Eşitsizlikler",
+        "Mutlak Değer",
+        "Üslü ve Köklü Sayılar",
+        "Çarpanlara Ayırma",
+        "Oran - Orantı",
+        "Denklem Çözme",
+        "Sayı ve Kesir Problemleri",
+        "Yaş Problemleri",
+        "İşçi ve Havuz Problemleri",
+        "Hareket Problemleri",
+        "Yüzde, Kâr - Zarar, Faiz Problemleri",
+        "Karışım Problemleri",
+        "Grafik ve Tablo Yorumlama",
+        "Kümeler",
+        "Fonksiyonlar",
+        "Permütasyon, Kombinasyon ve Olasılık",
+        "Sayısal Mantık"
+      ]
+    },
+    {
+      "name": "Geometri",
+      "colorIndex": 6,
+      "topics": [
+        "Doğruda ve Üçgende Açılar",
+        "Özel Üçgenler",
+        "Üçgende Benzerlik",
+        "Üçgende Alan",
+        "Dörtgenler ve Çokgenler",
+        "Çember ve Daire",
+        "Analitik Geometri",
+        "Katı Cisimler"
+      ]
+    },
+    {
+      "name": "Tarih",
+      "colorIndex": 3,
+      "topics": [
+        "İslamiyet Öncesi Türk Tarihi",
+        "İlk Türk - İslam Devletleri",
+        "Osmanlı Devleti Kuruluş Dönemi",
+        "Osmanlı Yükselme Dönemi",
+        "Osmanlı Kültür ve Medeniyeti",
+        "Osmanlı Duraklama ve Gerileme Dönemi",
+        "Osmanlı'da Islahat Hareketleri",
+        "XX. Yüzyıl Başlarında Osmanlı",
+        "Kurtuluş Savaşı Hazırlık Dönemi",
+        "Kurtuluş Savaşı Cepheler",
+        "TBMM'nin Açılışı ve İç İsyanlar",
+        "Türk İnkılabı",
+        "Atatürk İlkeleri",
+        "Atatürk Dönemi İç ve Dış Politika",
+        "Çağdaş Türk ve Dünya Tarihi"
+      ]
+    },
+    {
+      "name": "Coğrafya",
+      "colorIndex": 9,
+      "topics": [
+        "Türkiye'nin Coğrafi Konumu",
+        "Türkiye'nin Yer Şekilleri",
+        "Türkiye'nin İklimi ve Bitki Örtüsü",
+        "Türkiye'de Su Kaynakları ve Topraklar",
+        "Türkiye'de Nüfus ve Yerleşme",
+        "Türkiye'de Göç",
+        "Türkiye'de Tarım ve Hayvancılık",
+        "Türkiye'de Madenler ve Enerji Kaynakları",
+        "Türkiye'de Sanayi",
+        "Türkiye'de Ulaşım, Ticaret ve Turizm",
+        "Türkiye'nin Bölgeleri",
+        "Türkiye'nin Jeopolitik Konumu"
+      ]
+    },
+    {
+      "name": "Vatandaşlık",
+      "colorIndex": 11,
+      "topics": [
+        "Hukukun Temel Kavramları",
+        "Devlet Biçimleri ve Hükûmet Sistemleri",
+        "Türk Anayasa Tarihi",
+        "1982 Anayasası'nın Temel İlkeleri",
+        "Temel Hak ve Hürriyetler",
+        "Yasama",
+        "Yürütme",
+        "Yargı",
+        "İdare Hukuku ve İdarenin Yapısı",
+        "Uluslararası Kuruluşlar"
+      ]
+    },
+    {
+      "name": "Güncel Bilgiler",
+      "colorIndex": 10,
+      "topics": [
+        "Türkiye Gündemi: Siyaset",
+        "Türkiye Gündemi: Ekonomi",
+        "Dünya Gündemi",
+        "Bilim ve Teknoloji",
+        "Kültür ve Sanat",
+        "Spor",
+        "Ödüller ve Organizasyonlar"
+      ]
+    }
+  ]
+}

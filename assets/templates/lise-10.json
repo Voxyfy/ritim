@@ -1,0 +1,151 @@
+{
+  "id": "lise-10",
+  "name": "10. Sınıf",
+  "group": "Lise ve YKS",
+  "description": "10. sınıf ders içerikleri; trigonometri ve analitik geometriye giriş.",
+  "subjects": [
+    {
+      "name": "Türk Dili ve Edebiyatı",
+      "colorIndex": 0,
+      "topics": [
+        "Edebiyat ve Toplum",
+        "Hikâye",
+        "Şiir",
+        "Destan ve Efsane",
+        "Halk Hikâyesi",
+        "Mesnevi",
+        "Roman",
+        "Tiyatro",
+        "Biyografi ve Otobiyografi",
+        "Deneme",
+        "Makale",
+        "Sohbet ve Fıkra",
+        "Millî Edebiyat"
+      ]
+    },
+    {
+      "name": "Matematik",
+      "colorIndex": 1,
+      "topics": [
+        "Sayma ve Olasılık",
+        "Fonksiyonlar",
+        "Polinomlar",
+        "İkinci Dereceden Denklemler",
+        "Trigonometriye Giriş",
+        "Dörtgenler",
+        "Çokgenler",
+        "Analitik Geometri: Doğrunun Analitiği",
+        "Katı Cisimler"
+      ]
+    },
+    {
+      "name": "Fizik",
+      "colorIndex": 2,
+      "topics": [
+        "Elektrik ve Manyetizma",
+        "Elektrik Akımı ve Devreler",
+        "Basınç ve Kaldırma Kuvveti",
+        "Dalgalar",
+        "Optik"
+      ]
+    },
+    {
+      "name": "Kimya",
+      "colorIndex": 7,
+      "topics": [
+        "Kimyanın Temel Kanunları",
+        "Mol Kavramı ve Kimyasal Hesaplamalar",
+        "Karışımlar",
+        "Asitler, Bazlar ve Tuzlar",
+        "Gazlar",
+        "Endüstride ve Canlılarda Enerji"
+      ]
+    },
+    {
+      "name": "Biyoloji",
+      "colorIndex": 8,
+      "topics": [
+        "Hücre Bölünmeleri: Mitoz",
+        "Hücre Bölünmeleri: Mayoz",
+        "Üreme",
+        "Kalıtımın Genel İlkeleri",
+        "Fotosentez ve Kemosentez",
+        "Hücresel Solunum",
+        "Ekosistem Ekolojisi",
+        "Güncel Çevre Sorunları"
+      ]
+    },
+    {
+      "name": "Tarih",
+      "colorIndex": 3,
+      "topics": [
+        "Yerleşme ve Devletleşme: Selçuklu Türkiyesi",
+        "Beylikten Devlete Osmanlı Siyaseti",
+        "Devletleşme Sürecinde Savaşçılar ve Askerler",
+        "Beylikten Devlete Osmanlı Medeniyeti",
+        "Dünya Gücü Osmanlı",
+        "Sultan ve Osmanlı Merkez Teşkilatı",
+        "Klasik Çağda Osmanlı Toplum Düzeni"
+      ]
+    },
+    {
+      "name": "Coğrafya",
+      "colorIndex": 9,
+      "topics": [
+        "Dünya'nın Yapısı ve Oluşumu",
+        "İç Kuvvetler",
+        "Dış Kuvvetler",
+        "Türkiye'nin Yer Şekilleri",
+        "Su Kaynakları",
+        "Toprak ve Bitki Örtüsü",
+        "Nüfus Politikaları",
+        "Göç ve Şehirleşme",
+        "Ekonomik Faaliyetler",
+        "Doğal Afetler",
+        "Bölgeler ve Ülkeler"
+      ]
+    },
+    {
+      "name": "Felsefe",
+      "colorIndex": 10,
+      "topics": [
+        "Felsefeyi Tanıma",
+        "Felsefe ile Düşünme",
+        "Bilgi Felsefesi",
+        "Varlık Felsefesi",
+        "Ahlak Felsefesi",
+        "Sanat Felsefesi",
+        "Din Felsefesi",
+        "Siyaset Felsefesi",
+        "Bilim Felsefesi"
+      ]
+    },
+    {
+      "name": "İngilizce",
+      "colorIndex": 4,
+      "topics": [
+        "School Life",
+        "Plans",
+        "Legendary Figures",
+        "Traditions",
+        "Travel",
+        "Helpful Tips",
+        "Food and Festivals",
+        "Digital Era",
+        "Modern Heroes",
+        "Shopping"
+      ]
+    },
+    {
+      "name": "Din Kültürü",
+      "colorIndex": 5,
+      "topics": [
+        "Allah - İnsan İlişkisi",
+        "Hz. Muhammed ve Gençlik",
+        "Din ve Hayat",
+        "Ahlaki Tutum ve Davranışlar",
+        "İslam Düşüncesinde İtikadi ve Fıkhi Yorumlar"
+      ]
+    }
+  ]
+}

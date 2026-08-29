@@ -1,0 +1,198 @@
+{
+  "id": "tyt",
+  "name": "YKS · TYT",
+  "group": "Lise ve YKS",
+  "description": "Temel Yeterlilik Testi'nin dört testi, on ders başlığında.",
+  "subjects": [
+    {
+      "name": "Türkçe",
+      "colorIndex": 0,
+      "topics": [
+        "Sözcükte Anlam",
+        "Cümlede Anlam",
+        "Paragraf",
+        "Sözcük Türleri",
+        "Fiiller",
+        "Ekler ve Sözcükte Yapı",
+        "Cümlenin Ögeleri",
+        "Cümle Türleri",
+        "Ses Bilgisi",
+        "Yazım Kuralları",
+        "Noktalama İşaretleri",
+        "Anlatım Bozuklukları",
+        "Sözel Mantık"
+      ]
+    },
+    {
+      "name": "Matematik",
+      "colorIndex": 1,
+      "topics": [
+        "Temel Kavramlar",
+        "Sayı Basamakları",
+        "Bölme ve Bölünebilme",
+        "EBOB - EKOK",
+        "Rasyonel Sayılar",
+        "Basit Eşitsizlikler",
+        "Mutlak Değer",
+        "Üslü Sayılar",
+        "Köklü Sayılar",
+        "Çarpanlara Ayırma",
+        "Oran - Orantı",
+        "Denklem Çözme",
+        "Problemler",
+        "Kümeler ve Kartezyen Çarpım",
+        "Mantık",
+        "Fonksiyonlar",
+        "Polinomlar",
+        "2. Dereceden Denklemler",
+        "Permütasyon ve Kombinasyon",
+        "Olasılık",
+        "Veri ve İstatistik"
+      ]
+    },
+    {
+      "name": "Geometri",
+      "colorIndex": 6,
+      "topics": [
+        "Doğruda ve Üçgende Açılar",
+        "Özel Üçgenler",
+        "Üçgende Açı - Kenar Bağıntıları",
+        "Açıortay, Kenarortay ve Yükseklik",
+        "Üçgende Benzerlik",
+        "Üçgenlerde Alan",
+        "Çokgenler",
+        "Dörtgenler",
+        "Çember ve Daire",
+        "Çemberde Açı ve Uzunluk",
+        "Analitik Geometri",
+        "Katı Cisimler"
+      ]
+    },
+    {
+      "name": "Fizik",
+      "colorIndex": 2,
+      "topics": [
+        "Fizik Bilimine Giriş",
+        "Madde ve Özellikleri",
+        "Kuvvet ve Hareket",
+        "İş, Güç ve Enerji",
+        "Isı, Sıcaklık ve Genleşme",
+        "Basınç",
+        "Kaldırma Kuvveti",
+        "Elektrostatik",
+        "Elektrik ve Manyetizma",
+        "Dalgalar",
+        "Optik"
+      ]
+    },
+    {
+      "name": "Kimya",
+      "colorIndex": 7,
+      "topics": [
+        "Kimya Bilimi",
+        "Atom ve Periyodik Sistem",
+        "Kimyasal Türler Arası Etkileşimler",
+        "Maddenin Hâlleri",
+        "Karışımlar",
+        "Asitler, Bazlar ve Tuzlar",
+        "Kimyasal Hesaplamalar",
+        "Doğa ve Kimya",
+        "Kimya Her Yerde"
+      ]
+    },
+    {
+      "name": "Biyoloji",
+      "colorIndex": 8,
+      "topics": [
+        "Canlıların Ortak Özellikleri",
+        "Canlıların Yapısındaki Temel Bileşikler",
+        "Hücre ve Organelleri",
+        "Hücre Zarından Madde Geçişi",
+        "Canlıların Sınıflandırılması",
+        "Hücre Bölünmeleri",
+        "Kalıtımın Genel İlkeleri",
+        "Ekosistem Ekolojisi",
+        "Dünyamızın Geleceği"
+      ]
+    },
+    {
+      "name": "Tarih",
+      "colorIndex": 3,
+      "topics": [
+        "Tarih ve Zaman",
+        "İnsanlığın İlk Dönemleri",
+        "Orta Çağ'da Dünya",
+        "İlk ve Orta Çağlarda Türk Dünyası",
+        "İslam Medeniyetinin Doğuşu",
+        "Türklerin İslamiyet'i Kabulü ve İlk Türk - İslam Devletleri",
+        "Yerleşme ve Devletleşme: Selçuklu Türkiyesi",
+        "Beylikten Devlete Osmanlı",
+        "Dünya Gücü Osmanlı",
+        "Değişen Dünya Dengeleri",
+        "XVIII ve XIX. Yüzyılda Osmanlı",
+        "XX. Yüzyıl Başlarında Osmanlı",
+        "Millî Mücadele",
+        "Atatürkçülük ve Türk İnkılabı",
+        "Çağdaş Türk ve Dünya Tarihi"
+      ]
+    },
+    {
+      "name": "Coğrafya",
+      "colorIndex": 9,
+      "topics": [
+        "Doğa ve İnsan",
+        "Coğrafi Konum",
+        "Harita Bilgisi",
+        "İklim Bilgisi",
+        "Yer Şekilleri ve İç - Dış Kuvvetler",
+        "Türkiye'nin Yer Şekilleri",
+        "Nüfus",
+        "Yerleşme ve Göç",
+        "Ekonomik Faaliyetler",
+        "Türkiye'de Tarım, Hayvancılık ve Sanayi",
+        "Ulaşım, Ticaret ve Turizm",
+        "Doğal Afetler",
+        "Çevre ve Toplum",
+        "Bölgeler ve Ülkeler",
+        "Coğrafi Bilgi Sistemleri"
+      ]
+    },
+    {
+      "name": "Felsefe",
+      "colorIndex": 10,
+      "topics": [
+        "Felsefeyi Tanıma",
+        "Felsefe ile Düşünme",
+        "Bilgi Felsefesi",
+        "Varlık Felsefesi",
+        "Ahlak Felsefesi",
+        "Sanat Felsefesi",
+        "Din Felsefesi",
+        "Siyaset Felsefesi",
+        "Bilim Felsefesi",
+        "MÖ 6 - MS 2. Yüzyıl Felsefesi",
+        "MS 2 - MS 15. Yüzyıl Felsefesi",
+        "15 - 17. Yüzyıl Felsefesi",
+        "18 - 19. Yüzyıl Felsefesi",
+        "20. Yüzyıl Felsefesi"
+      ]
+    },
+    {
+      "name": "Din Kültürü",
+      "colorIndex": 5,
+      "topics": [
+        "Bilgi ve İnanç",
+        "Din ve İslam",
+        "İslam ve İbadet",
+        "Gençlik ve Değerler",
+        "Gönül Coğrafyamız",
+        "Allah - İnsan İlişkisi",
+        "Hz. Muhammed'in Hayatı ve Örnekliği",
+        "Kur'an-ı Kerim ve Yorumu",
+        "İslam Düşüncesinde Yorumlar",
+        "Güncel Dinî Meseleler",
+        "Yaşayan Dinler"
+      ]
+    }
+  ]
+}

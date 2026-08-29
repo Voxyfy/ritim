@@ -1,0 +1,73 @@
+# --- Secrets and signing -----------------------------------------------------
+# Nothing below this heading may ever reach the public repository.
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
+android/key.properties
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+ios/Runner/firebase_app_id_file.json
+.env
+.env.*
+!.env.example
+secrets.dart
+
+# --- Generated code ----------------------------------------------------------
+# Drift/build_runner output. Not committed: it is fully reproducible with
+# `dart run build_runner build`, and committing it turns every schema change
+# into a thousand-line diff and a merge conflict. CI regenerates it before it
+# analyses. See README, "Kurulum".
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+
+# --- Flutter / Dart ----------------------------------------------------------
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+pubspec_overrides.yaml
+.fvm/
+.fvmrc
+
+# --- Build artefacts ---------------------------------------------------------
+*.apk
+*.aab
+*.ipa
+*.app.zip
+app.*.symbols
+app.*.map.json
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# --- Editors and OS ----------------------------------------------------------
+.DS_Store
+.idea/
+*.iml
+*.ipr
+*.iws
+.atom/
+.history
+.swiftpm/
+# .vscode is intentionally tracked: shared launch configs help new contributors.
+.vscode/*
+!.vscode/launch.json
+!.vscode/settings.json
+.claude/settings.local.json
+
+# --- Misc --------------------------------------------------------------------
+*.class
+*.log
+*.pyc
+*.swp
+.build/
+.buildlog/
+.svn/
+migrate_working_dir/

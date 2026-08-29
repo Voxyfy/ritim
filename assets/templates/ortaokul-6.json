@@ -1,0 +1,67 @@
+{
+  "id": "ortaokul-6",
+  "name": "6. Sınıf",
+  "group": "Ortaokul",
+  "description": "Türkiye Yüzyılı Maarif Modeli 6. sınıf temaları.",
+  "subjects": [
+    {
+      "name": "Türkçe",
+      "colorIndex": 0,
+      "topics": [
+        "Dilimizin Zenginliği",
+        "Bağımsızlık Yolu",
+        "Farklı Dünyalar",
+        "İletişim ve Sosyal İlişkiler",
+        "Bilim ve Teknoloji",
+        "Lider Ruhlar"
+      ]
+    },
+    {
+      "name": "Matematik",
+      "colorIndex": 1,
+      "topics": [
+        "Sayılar ve Nicelikler",
+        "İşlemlerle Cebirsel Düşünme ve Değişimler",
+        "Geometrik Şekiller",
+        "İstatistiksel Araştırma Süreci",
+        "Veriden Olasılığa"
+      ]
+    },
+    {
+      "name": "Fen Bilimleri",
+      "colorIndex": 2,
+      "topics": [
+        "Güneş Sistemi ve Tutulmalar",
+        "Kuvvetin Etkisinde Hareket",
+        "Canlılarda Sistemler",
+        "Işığın Yansıması ve Renkler",
+        "Maddenin Ayırt Edici Özellikleri",
+        "Elektriğin İletimi ve Direnci",
+        "Sürdürülebilir Yaşam ve Etkileşim"
+      ]
+    },
+    {
+      "name": "Sosyal Bilgiler",
+      "colorIndex": 9,
+      "topics": [
+        "Birlikte Yaşamak",
+        "Evimiz Dünya",
+        "Ortak Mirasımız",
+        "Yaşayan Demokrasimiz",
+        "Hayatımızdaki Ekonomi",
+        "Teknoloji ve Sosyal Bilimler"
+      ]
+    },
+    {
+      "name": "Din Kültürü",
+      "colorIndex": 5,
+      "topics": [
+        "Peygamber ve İlahi Kitap İnancı",
+        "Ramazan ve Oruç",
+        "Ahlaki Davranışlar",
+        "Peygamberliğinden Önce Hz. Muhammed",
+        "Kültürümüzdeki Dinî Motifler"
+      ]
+    }
+  ]
+}

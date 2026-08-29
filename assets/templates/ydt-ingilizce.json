@@ -1,0 +1,53 @@
+{
+  "id": "ydt-ingilizce",
+  "name": "YKS · YDT İngilizce",
+  "group": "Lise ve YKS",
+  "description": "Yabancı Dil Testi: dil bilgisi, kelime ve okuma becerileri.",
+  "subjects": [
+    {
+      "name": "Dil Bilgisi",
+      "colorIndex": 4,
+      "topics": [
+        "Tenses",
+        "Modals",
+        "Passive Voice ve Causatives",
+        "Pronouns",
+        "Adjectives ve Adverbs",
+        "Conditionals ve Wish Clauses",
+        "Relative Clauses",
+        "Noun Clauses ve Reported Speech",
+        "Gerunds ve Infinitives",
+        "Conjunctions ve Transitions",
+        "Determiners ve Quantifiers",
+        "Prepositions"
+      ]
+    },
+    {
+      "name": "Kelime Bilgisi",
+      "colorIndex": 0,
+      "topics": [
+        "Word Formation: Prefixes ve Suffixes",
+        "Synonyms ve Antonyms",
+        "Phrasal Verbs",
+        "Collocations",
+        "Guessing Meaning from Context"
+      ]
+    },
+    {
+      "name": "Okuma ve Anlam",
+      "colorIndex": 2,
+      "topics": [
+        "Cloze Test",
+        "Sentence Completion",
+        "Paragraph Completion",
+        "Reading Comprehension",
+        "Restatement",
+        "Irrelevant Sentence",
+        "Dialogue Completion",
+        "Situation",
+        "İngilizce - Türkçe Çeviri",
+        "Türkçe - İngilizce Çeviri"
+      ]
+    }
+  ]
+}

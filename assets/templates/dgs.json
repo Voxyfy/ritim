@@ -1,0 +1,57 @@
+{
+  "id": "dgs",
+  "name": "DGS · Dikey Geçiş",
+  "group": "Kamu sınavları",
+  "description": "Sayısal ve sözel muhakeme; dil bilgisi sorulmaz.",
+  "subjects": [
+    {
+      "name": "Matematik",
+      "colorIndex": 1,
+      "topics": [
+        "Temel Kavramlar",
+        "Sayı Basamakları",
+        "Bölme ve Bölünebilme",
+        "EBOB - EKOK",
+        "Rasyonel Sayılar",
+        "Basit Eşitsizlikler",
+        "Mutlak Değer",
+        "Üslü ve Köklü Sayılar",
+        "Çarpanlara Ayırma",
+        "Oran - Orantı",
+        "Denklem Çözme",
+        "Problemler",
+        "Kümeler",
+        "Fonksiyonlar",
+        "Permütasyon, Kombinasyon ve Olasılık",
+        "Sayısal Mantık",
+        "Tablo ve Grafik Yorumlama"
+      ]
+    },
+    {
+      "name": "Geometri",
+      "colorIndex": 6,
+      "topics": [
+        "Doğruda ve Üçgende Açılar",
+        "Özel Üçgenler",
+        "Üçgende Benzerlik ve Alan",
+        "Dörtgenler ve Çokgenler",
+        "Çember ve Daire",
+        "Analitik Geometri",
+        "Katı Cisimler"
+      ]
+    },
+    {
+      "name": "Türkçe",
+      "colorIndex": 0,
+      "topics": [
+        "Sözcükte Anlam",
+        "Cümlede Anlam",
+        "Anlatım Biçimleri",
+        "Paragrafta Ana Düşünce",
+        "Paragrafta Yapı",
+        "Paragrafı Tamamlama",
+        "Sözel Mantık ve Akıl Yürütme"
+      ]
+    }
+  ]
+}

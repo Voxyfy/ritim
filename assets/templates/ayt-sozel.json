@@ -1,0 +1,160 @@
+{
+  "id": "ayt-sozel",
+  "name": "YKS · AYT Sözel",
+  "group": "Lise ve YKS",
+  "description": "Sözel alan için edebiyat, tarih, coğrafya ve felsefe grubu.",
+  "subjects": [
+    {
+      "name": "Türk Dili ve Edebiyatı",
+      "colorIndex": 0,
+      "topics": [
+        "Edebiyatın Tanımı ve Bilimlerle İlişkisi",
+        "Şiir Bilgisi ve Edebî Sanatlar",
+        "İslamiyet Öncesi Türk Edebiyatı",
+        "Geçiş Dönemi Eserleri",
+        "Halk Edebiyatı",
+        "Divan Edebiyatı",
+        "Tanzimat Edebiyatı",
+        "Servet-i Fünûn ve Fecr-i Âti",
+        "Millî Edebiyat",
+        "Cumhuriyet Dönemi Şiiri",
+        "Cumhuriyet Dönemi Roman ve Hikâyesi",
+        "Beş Hececiler, Yedi Meşaleciler",
+        "Garip ve İkinci Yeni",
+        "Edebî Akımlar",
+        "Dünya Edebiyatı",
+        "Hikâye",
+        "Roman",
+        "Şiir",
+        "Tiyatro",
+        "Deneme, Makale, Sohbet, Fıkra",
+        "Eleştiri, Röportaj, Haber",
+        "Destan, Masal, Fabl, Efsane",
+        "Anlatım Biçimleri"
+      ]
+    },
+    {
+      "name": "Tarih-1",
+      "colorIndex": 3,
+      "topics": [
+        "Tarih ve Zaman",
+        "İnsanlığın İlk Dönemleri",
+        "Orta Çağ'da Dünya",
+        "İlk ve Orta Çağlarda Türk Dünyası",
+        "İslam Medeniyetinin Doğuşu",
+        "Türklerin İslamiyet'i Kabulü ve İlk Türk - İslam Devletleri",
+        "Yerleşme ve Devletleşme: Selçuklu Türkiyesi",
+        "Beylikten Devlete Osmanlı",
+        "Devletleşme Sürecinde Savaşçılar ve Askerler",
+        "Beylikten Devlete Osmanlı Medeniyeti",
+        "Dünya Gücü Osmanlı",
+        "Sultan ve Osmanlı Merkez Teşkilatı",
+        "Klasik Çağda Osmanlı Toplum Düzeni"
+      ]
+    },
+    {
+      "name": "Tarih-2",
+      "colorIndex": 11,
+      "topics": [
+        "Değişen Dünya Dengeleri Karşısında Osmanlı",
+        "Değişim Çağında Avrupa ve Osmanlı",
+        "Uluslararası İlişkilerde Denge Stratejisi (1774 - 1914)",
+        "Devrimler Çağında Değişen Devlet - Toplum İlişkileri",
+        "Sermaye ve Emek",
+        "XX. Yüzyıl Başlarında Osmanlı Devleti ve Dünya",
+        "Millî Mücadele",
+        "Atatürkçülük ve Türk İnkılabı",
+        "İki Savaş Arasındaki Dönemde Türkiye ve Dünya",
+        "II. Dünya Savaşı Sürecinde Türkiye ve Dünya",
+        "Soğuk Savaş Dönemi",
+        "Yumuşama Dönemi ve Sonrası",
+        "Küreselleşen Dünya",
+        "Toplumsal Devrim Çağında Dünya ve Türkiye",
+        "XXI. Yüzyılın Eşiğinde Türkiye ve Dünya"
+      ]
+    },
+    {
+      "name": "Coğrafya-1",
+      "colorIndex": 9,
+      "topics": [
+        "Ekosistem ve Madde Döngüleri",
+        "Biyoçeşitlilik",
+        "Nüfus Politikaları",
+        "Türkiye'de Nüfus ve Yerleşme",
+        "Göç ve Şehirleşme",
+        "Ekonomik Faaliyetler ve Doğal Kaynaklar",
+        "İlk Medeniyetler ve Şehirler",
+        "Türkiye Ekonomisi",
+        "Türkiye'nin Jeopolitik Konumu",
+        "Doğal Afetler ve Toplum"
+      ]
+    },
+    {
+      "name": "Coğrafya-2",
+      "colorIndex": 8,
+      "topics": [
+        "İklim ve Yer Şekilleri",
+        "Türkiye'de Doğal Afetler ve Risk Yönetimi",
+        "Türkiye ve Dünyada Bölgeler",
+        "Ülkeler Arası Etkileşim",
+        "Küresel ve Bölgesel Örgütler",
+        "Üretim Alanları ve Ulaşım Ağları",
+        "Doğal Kaynaklar ve Enerji",
+        "Çevre Sorunları ve Yönetimi",
+        "Çevre ve Toplum"
+      ]
+    },
+    {
+      "name": "Felsefe Grubu",
+      "colorIndex": 10,
+      "topics": [
+        "Felsefenin Konusu ve Alanları",
+        "Bilgi Felsefesi",
+        "Varlık Felsefesi",
+        "Ahlak Felsefesi",
+        "Sanat Felsefesi",
+        "Din Felsefesi",
+        "Siyaset Felsefesi",
+        "Bilim Felsefesi",
+        "Felsefe Tarihi: İlk Çağ",
+        "Felsefe Tarihi: Orta Çağ",
+        "Felsefe Tarihi: 15 - 17. Yüzyıl",
+        "Felsefe Tarihi: 18 - 19. Yüzyıl",
+        "Felsefe Tarihi: 20. Yüzyıl",
+        "Mantığa Giriş",
+        "Klasik Mantık",
+        "Mantık ve Dil",
+        "Sembolik Mantık",
+        "Psikoloji Bilimini Tanıyalım",
+        "Psikolojinin Temel Süreçleri",
+        "Öğrenme, Bellek ve Düşünme",
+        "Ruh Sağlığının Temelleri",
+        "Sosyolojiye Giriş",
+        "Birey ve Toplum",
+        "Toplumsal Yapı",
+        "Toplumsal Değişme ve Gelişme",
+        "Toplum ve Kültür",
+        "Toplumsal Kurumlar"
+      ]
+    },
+    {
+      "name": "Din Kültürü",
+      "colorIndex": 5,
+      "topics": [
+        "Dünya ve Ahiret",
+        "Kur'an'a Göre Hz. Muhammed",
+        "Kur'an'da Bazı Kavramlar",
+        "İnançla İlgili Meseleler",
+        "İslam'da İbadetlerin Faydaları",
+        "Allah - İnsan İlişkisi",
+        "Yahudilik ve Hristiyanlık",
+        "İslam ve Bilim",
+        "Anadolu'da İslam",
+        "İslam Düşüncesinde Tasavvufi Yorumlar",
+        "İslam Düşüncesinde İtikadi ve Fıkhi Yorumlar",
+        "Güncel Dinî Meseleler",
+        "Hint ve Çin Dinleri"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+  errors:
+    # An unused import or a dangling TODO should not be merged into main.
+    unused_import: error
+    unused_local_variable: error
+
+linter:
+  rules:
+    - always_declare_return_types
+    # İçe aktarmalar dart / package / göreli sırasında ve kendi içinde
+    # alfabetik. Elle düzenlenen dosyalarda sıra hızla dağılıyor ve iki
+    # dosyanın başı birbirine benzemez hâle geliyor.
+    - directives_ordering
+    - avoid_print
+    - prefer_final_locals
+    - prefer_single_quotes
+    - require_trailing_commas
+    - sort_child_properties_last
+    - unawaited_futures
+    - use_super_parameters

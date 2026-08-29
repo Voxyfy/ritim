@@ -1,0 +1,172 @@
+{
+  "id": "lise-11",
+  "name": "11. Sınıf",
+  "group": "Lise ve YKS",
+  "description": "11. sınıf ders içerikleri; AYT konularının çoğu bu yıl işlenir.",
+  "subjects": [
+    {
+      "name": "Türk Dili ve Edebiyatı",
+      "colorIndex": 0,
+      "topics": [
+        "Hikâye",
+        "Şiir",
+        "Roman",
+        "Tiyatro",
+        "Makale",
+        "Sohbet ve Fıkra",
+        "Eleştiri",
+        "Mülakat ve Röportaj",
+        "Tanzimat Edebiyatı",
+        "Servet-i Fünûn ve Fecr-i Âti",
+        "Millî Edebiyat",
+        "Cumhuriyet Dönemi Edebiyatı"
+      ]
+    },
+    {
+      "name": "Matematik",
+      "colorIndex": 1,
+      "topics": [
+        "Trigonometri",
+        "Analitik Geometri: Doğru",
+        "Fonksiyonlarda Uygulamalar",
+        "Denklem ve Eşitsizlik Sistemleri",
+        "Çember ve Daire",
+        "Çemberin Analitiği",
+        "Katı Cisimler",
+        "Olasılık"
+      ]
+    },
+    {
+      "name": "Fizik",
+      "colorIndex": 2,
+      "topics": [
+        "Vektörler",
+        "Bağıl Hareket",
+        "Newton'ın Hareket Yasaları",
+        "Bir Boyutta Sabit İvmeli Hareket",
+        "Atışlar",
+        "Enerji ve Hareket",
+        "İtme ve Momentum",
+        "Tork ve Denge",
+        "Kütle Merkezi",
+        "Basit Makineler",
+        "Elektriksel Kuvvet ve Alan",
+        "Elektriksel Potansiyel",
+        "Paralel Levhalar ve Sığa",
+        "Manyetik Alan ve Manyetik Kuvvet",
+        "Elektromanyetik İndüklenme",
+        "Alternatif Akım ve Transformatörler",
+        "Düzgün Çembersel Hareket",
+        "Basit Harmonik Hareket",
+        "Optik: Yansıma ve Kırılma",
+        "Mercekler"
+      ]
+    },
+    {
+      "name": "Kimya",
+      "colorIndex": 7,
+      "topics": [
+        "Modern Atom Teorisi",
+        "Gazlar",
+        "Sıvı Çözeltiler ve Çözünürlük",
+        "Kimyasal Tepkimelerde Enerji",
+        "Kimyasal Tepkimelerde Hız",
+        "Kimyasal Tepkimelerde Denge",
+        "Asit - Baz Dengesi",
+        "Çözünürlük Dengesi",
+        "Kimya ve Elektrik"
+      ]
+    },
+    {
+      "name": "Biyoloji",
+      "colorIndex": 8,
+      "topics": [
+        "Sinir Sistemi",
+        "Endokrin Sistem ve Hormonlar",
+        "Duyu Organları",
+        "Destek ve Hareket Sistemi",
+        "Sindirim Sistemi",
+        "Dolaşım ve Bağışıklık Sistemi",
+        "Solunum Sistemi",
+        "Üriner Sistem",
+        "Üreme Sistemi ve Embriyonik Gelişim",
+        "Komünite Ekolojisi",
+        "Popülasyon Ekolojisi"
+      ]
+    },
+    {
+      "name": "Tarih",
+      "colorIndex": 3,
+      "topics": [
+        "Değişen Dünya Dengeleri Karşısında Osmanlı (1595 - 1774)",
+        "Değişim Çağında Avrupa ve Osmanlı",
+        "Uluslararası İlişkilerde Denge Stratejisi (1774 - 1914)",
+        "Devrimler Çağında Değişen Devlet - Toplum İlişkileri",
+        "Sermaye ve Emek",
+        "XX. Yüzyıl Başlarında Osmanlı Devleti ve Dünya",
+        "Savaşlar Sarmalında Osmanlı (1908 - 1918)"
+      ]
+    },
+    {
+      "name": "Coğrafya",
+      "colorIndex": 9,
+      "topics": [
+        "Biyoçeşitlilik",
+        "Ekosistem ve Madde Döngüleri",
+        "Nüfus Politikaları",
+        "Şehirler ve Etki Alanları",
+        "Ekonomik Faaliyetlerin Sınıflandırılması",
+        "Türkiye Ekonomisi",
+        "Su Kaynakları ve Yönetimi",
+        "Ulaşım Ağları ve Ticaret",
+        "Doğal Kaynaklar ve Enerji",
+        "Çevre Sorunları ve Yönetimi",
+        "Mekânsal Sorunlar ve CBS"
+      ]
+    },
+    {
+      "name": "Felsefe",
+      "colorIndex": 10,
+      "topics": [
+        "MÖ 6 - MS 2. Yüzyıl Felsefesi",
+        "MS 2 - MS 15. Yüzyıl Felsefesi",
+        "15 - 17. Yüzyıl Felsefesi",
+        "18 - 19. Yüzyıl Felsefesi",
+        "20. Yüzyıl Felsefesi",
+        "Çevre Sorunları ve Felsefe",
+        "Teknoloji ve Hayat",
+        "Akıl ve İnanç",
+        "Edebiyat ve Felsefe",
+        "Hayatın Anlamı",
+        "Hukuk ve Felsefe"
+      ]
+    },
+    {
+      "name": "İngilizce",
+      "colorIndex": 4,
+      "topics": [
+        "Future Jobs",
+        "Hobbies and Skills",
+        "Hard Times",
+        "What a Life!",
+        "Back to the Past",
+        "Open Your Heart",
+        "Facts about Türkiye",
+        "Sports",
+        "My Friends",
+        "Values and Norms"
+      ]
+    },
+    {
+      "name": "Din Kültürü",
+      "colorIndex": 5,
+      "topics": [
+        "Dünya ve Ahiret",
+        "Kur'an'a Göre Hz. Muhammed",
+        "Kur'an'da Bazı Kavramlar",
+        "İnançla İlgili Meseleler",
+        "Yahudilik ve Hristiyanlık"
+      ]
+    }
+  ]
+}

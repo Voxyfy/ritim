@@ -1,0 +1,82 @@
+{
+  "id": "ags",
+  "name": "MEB-AGS · Öğretmenlik",
+  "group": "Kamu sınavları",
+  "description": "Akademi Giriş Sınavı: öğretmen adayları için KPSS'nin yerini aldı.",
+  "subjects": [
+    {
+      "name": "Sözel Yetenek",
+      "colorIndex": 0,
+      "topics": [
+        "Sözcükte Anlam",
+        "Cümlede Anlam",
+        "Paragrafta Anlam",
+        "Anlatım Teknikleri",
+        "Sözel Mantık ve Muhakeme"
+      ]
+    },
+    {
+      "name": "Sayısal Yetenek",
+      "colorIndex": 1,
+      "topics": [
+        "Temel Matematik",
+        "Oran - Orantı ve Yüzde",
+        "EBOB - EKOK",
+        "Denklemler",
+        "Sayı ve Kesir Problemleri",
+        "Yaş ve Hareket Problemleri",
+        "Grafik ve Tablo Yorumlama",
+        "Sayı Dizileri",
+        "Mantıksal Muhakeme"
+      ]
+    },
+    {
+      "name": "Eğitim Bilimleri",
+      "colorIndex": 10,
+      "topics": [
+        "Eğitim Biliminin Temel Kavramları",
+        "Eğitimin Felsefi ve Toplumsal Temelleri",
+        "Gelişim Psikolojisi",
+        "Öğrenme Psikolojisi",
+        "Öğretim İlke ve Yöntemleri",
+        "Öğretim Teknolojileri ve Materyal Tasarımı",
+        "Program Geliştirme ve Program Okuryazarlığı",
+        "Ölçme ve Değerlendirme",
+        "Sınıf Yönetimi",
+        "Rehberlik ve Özel Eğitim",
+        "Türk Millî Eğitim Sisteminin Genel Yapısı",
+        "Türkiye Yüzyılı Maarif Modeli"
+      ]
+    },
+    {
+      "name": "Mevzuat",
+      "colorIndex": 11,
+      "topics": [
+        "T.C. Anayasası ve Eğitim Hakkı",
+        "1739 Sayılı Millî Eğitim Temel Kanunu",
+        "222 Sayılı İlköğretim ve Eğitim Kanunu",
+        "7528 Sayılı Öğretmenlik Mesleği Kanunu",
+        "657 Sayılı Devlet Memurları Kanunu"
+      ]
+    },
+    {
+      "name": "Tarih",
+      "colorIndex": 3,
+      "topics": [
+        "Osmanlı Öncesi Türk Devletleri",
+        "Osmanlı Tarihi",
+        "Atatürk İlkeleri ve İnkılap Tarihi",
+        "Çağdaş Türk ve Dünya Tarihi"
+      ]
+    },
+    {
+      "name": "Türkiye Coğrafyası",
+      "colorIndex": 9,
+      "topics": [
+        "Türkiye'nin Fiziki Coğrafyası",
+        "Türkiye'nin Beşerî Coğrafyası",
+        "Türkiye'nin Ekonomik Coğrafyası"
+      ]
+    }
+  ]
+}

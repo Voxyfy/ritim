@@ -1,0 +1,116 @@
+{
+  "id": "ayt-sayisal",
+  "name": "YKS · AYT Sayısal",
+  "group": "Lise ve YKS",
+  "description": "Sayısal alan için AYT dersleri: matematik, geometri ve fen.",
+  "subjects": [
+    {
+      "name": "Matematik",
+      "colorIndex": 1,
+      "topics": [
+        "Fonksiyonlar",
+        "Polinomlar",
+        "2. Dereceden Denklemler",
+        "Karmaşık Sayılar",
+        "Eşitsizlikler",
+        "Parabol",
+        "Permütasyon, Kombinasyon ve Olasılık",
+        "Binom",
+        "Trigonometri",
+        "Logaritma",
+        "Diziler",
+        "Limit ve Süreklilik",
+        "Türev",
+        "İntegral"
+      ]
+    },
+    {
+      "name": "Geometri",
+      "colorIndex": 6,
+      "topics": [
+        "Üçgenlerde Açı, Kenar ve Alan",
+        "Özel Üçgenler",
+        "Eşlik ve Benzerlik",
+        "Özel Dörtgenler",
+        "Çember ve Daire",
+        "Çemberde Açı, Uzunluk ve Alan",
+        "Analitik Geometri: Nokta ve Doğru",
+        "Çemberin Analitiği",
+        "Konikler",
+        "Dönüşüm Geometrisi",
+        "Vektörler",
+        "Katı Cisimler"
+      ]
+    },
+    {
+      "name": "Fizik",
+      "colorIndex": 2,
+      "topics": [
+        "Vektörler",
+        "Kuvvet, Tork ve Denge",
+        "Kütle Merkezi",
+        "Basit Makineler",
+        "Newton'ın Hareket Yasaları",
+        "Bir Boyutta Hareket",
+        "Atışlar",
+        "İtme ve Momentum",
+        "Enerji ve Hareket",
+        "Düzgün Çembersel Hareket",
+        "Basit Harmonik Hareket",
+        "Kütle Çekim ve Kepler Yasaları",
+        "Elektriksel Kuvvet ve Alan",
+        "Elektriksel Potansiyel",
+        "Paralel Levhalar ve Sığa",
+        "Manyetik Alan ve Manyetik Kuvvet",
+        "İndüksiyon, Alternatif Akım ve Transformatörler",
+        "Dalga Mekaniği",
+        "Atom Fiziği ve Radyoaktivite",
+        "Modern Fizik",
+        "Modern Fiziğin Teknolojideki Uygulamaları"
+      ]
+    },
+    {
+      "name": "Kimya",
+      "colorIndex": 7,
+      "topics": [
+        "Modern Atom Teorisi",
+        "Gazlar",
+        "Sıvı Çözeltiler ve Çözünürlük",
+        "Kimyasal Tepkimelerde Enerji",
+        "Kimyasal Tepkimelerde Hız",
+        "Kimyasal Tepkimelerde Denge",
+        "Asit - Baz Dengesi",
+        "Çözünürlük Dengesi",
+        "Kimya ve Elektrik",
+        "Karbon Kimyasına Giriş",
+        "Organik Bileşikler",
+        "Organik Kimya Uygulamaları",
+        "Enerji Kaynakları ve Bilimsel Gelişmeler"
+      ]
+    },
+    {
+      "name": "Biyoloji",
+      "colorIndex": 8,
+      "topics": [
+        "Sinir Sistemi",
+        "Endokrin Sistem ve Hormonlar",
+        "Duyu Organları",
+        "Destek ve Hareket Sistemi",
+        "Sindirim Sistemi",
+        "Dolaşım ve Bağışıklık Sistemi",
+        "Solunum Sistemi",
+        "Üriner Sistem",
+        "Üreme Sistemi ve Embriyonik Gelişim",
+        "Komünite Ekolojisi",
+        "Popülasyon Ekolojisi",
+        "Genden Proteine",
+        "Nükleik Asitler",
+        "Genetik Mühendisliği ve Biyoteknoloji",
+        "Canlılarda Enerji Dönüşümleri",
+        "Fotosentez ve Kemosentez",
+        "Bitki Biyolojisi",
+        "Canlılar ve Çevre"
+      ]
+    }
+  ]
+}

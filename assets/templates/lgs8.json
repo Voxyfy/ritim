@@ -1,0 +1,111 @@
+{
+  "id": "lgs8",
+  "name": "LGS · 8. Sınıf",
+  "group": "Ortaokul",
+  "description": "Liselere Geçiş Sınavı'nın altı dersi, MEB kazanımlarına göre.",
+  "subjects": [
+    {
+      "name": "Türkçe",
+      "colorIndex": 0,
+      "topics": [
+        "Sözcükte Anlam",
+        "Cümlede Anlam",
+        "Söz Sanatları",
+        "Metin Türleri",
+        "Paragrafta Anlam",
+        "Paragrafta Yapı",
+        "Tablo ve Grafik Yorumlama",
+        "Sözel Mantık",
+        "Fiilimsiler",
+        "Cümlenin Ögeleri",
+        "Fiillerde Çatı",
+        "Cümle Türleri",
+        "Anlatım Bozuklukları",
+        "Yazım Kuralları",
+        "Noktalama İşaretleri"
+      ]
+    },
+    {
+      "name": "Matematik",
+      "colorIndex": 1,
+      "topics": [
+        "Çarpanlar ve Katlar",
+        "Üslü İfadeler",
+        "Kareköklü İfadeler",
+        "Veri Analizi",
+        "Basit Olayların Olma Olasılığı",
+        "Cebirsel İfadeler ve Özdeşlikler",
+        "Doğrusal Denklemler",
+        "Eşitsizlikler",
+        "Üçgenler",
+        "Eşlik ve Benzerlik",
+        "Dönüşüm Geometrisi",
+        "Geometrik Cisimler"
+      ]
+    },
+    {
+      "name": "Fen Bilimleri",
+      "colorIndex": 2,
+      "topics": [
+        "Mevsimler ve İklim",
+        "DNA ve Genetik Kod",
+        "Kalıtım",
+        "Mutasyon ve Modifikasyon",
+        "Adaptasyon ve Evrim",
+        "Basınç",
+        "Periyodik Sistem",
+        "Fiziksel ve Kimyasal Değişimler",
+        "Kimyasal Tepkimeler",
+        "Asitler ve Bazlar",
+        "Isı ve Madde",
+        "Kimya Endüstrisi",
+        "Basit Makineler",
+        "Besin Zinciri ve Enerji Akışı",
+        "Madde Döngüleri",
+        "Sürdürülebilir Kalkınma",
+        "Elektrik Yükleri ve Elektriklenme",
+        "Elektrik Enerjisinin Dönüşümü"
+      ]
+    },
+    {
+      "name": "T.C. İnkılap Tarihi",
+      "colorIndex": 3,
+      "topics": [
+        "Bir Kahraman Doğuyor",
+        "Millî Uyanış: Bağımsızlık Yolunda Atılan Adımlar",
+        "Millî Bir Destan: Ya İstiklal Ya Ölüm",
+        "Atatürkçülük ve Çağdaşlaşan Türkiye",
+        "Demokratikleşme Çabaları",
+        "Atatürk Dönemi Türk Dış Politikası",
+        "Atatürk'ün Ölümü ve Sonrası"
+      ]
+    },
+    {
+      "name": "İngilizce",
+      "colorIndex": 4,
+      "topics": [
+        "Friendship",
+        "Teen Life",
+        "In the Kitchen",
+        "On the Phone",
+        "The Internet",
+        "Adventures",
+        "Tourism",
+        "Chores",
+        "Science",
+        "Natural Forces"
+      ]
+    },
+    {
+      "name": "Din Kültürü",
+      "colorIndex": 5,
+      "topics": [
+        "Kader ve Kaza İnancı",
+        "Zekât ve Sadaka",
+        "Din ve Hayat",
+        "Hz. Muhammed'in Örnekliği",
+        "Kur'an-ı Kerim ve Özellikleri"
+      ]
+    }
+  ]
+}

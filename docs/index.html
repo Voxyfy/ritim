@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ritim · Konu takibi ve aralıklı tekrar</title>
+<meta name="description" content="Ritim, çalıştığın konuyu 1, 3, 7 ve 21 gün sonra karşına çıkaran bir çalışma uygulaması. Hesap yok, reklam yok.">
+<link rel="icon" href="icon.png">
+<style>
+  :root { --zemin:#FAF6EF; --yuzey:#FFFFFF; --cizgi:#EAE3D8;
+          --metin:#1F1D1A; --ikincil:#6E6A63; --vurgu:#C9512B; --yumusak:#F9E9E1; }
+  * { box-sizing: border-box; }
+  body { margin:0; padding:56px 20px 80px; background:var(--zemin); color:var(--metin);
+         font:16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width:680px; margin:0 auto; }
+  .amblem { width:88px; height:88px; border-radius:20px; display:block; margin:0 0 22px; }
+  h1 { font-size:40px; letter-spacing:-1px; margin:0 0 8px; }
+  .slogan { font-size:19px; color:var(--ikincil); margin:0 0 36px; }
+  .adimlar { display:grid; gap:12px; margin:0 0 36px; padding:0; list-style:none; }
+  .adimlar li { background:var(--yuzey); border:1px solid var(--cizgi);
+                border-radius:18px; padding:16px 20px; }
+  .adimlar b { color:var(--vurgu); }
+  .rozet { display:inline-block; background:var(--yumusak); color:var(--vurgu);
+           border-radius:999px; padding:5px 14px; font-size:14px; font-weight:600;
+           margin:0 6px 8px 0; }
+  a { color:var(--vurgu); }
+  footer { margin-top:44px; padding-top:20px; border-top:1px solid var(--cizgi);
+           color:var(--ikincil); font-size:14px; }
+</style>
+</head>
+<body>
+<main>
+  <img class="amblem" src="icon.png" alt="Ritim">
+  <h1>Ritim</h1>
+  <p class="slogan">Görev listesi değil, konu takibi. Çalıştığın konu
+  unutmaya başladığın gün kendiliğinden karşına çıkar.</p>
+
+  <ol class="adimlar">
+    <li><b>Konuyu çalış.</b> Süreyi, çözdüğün ve yanlış yaptığın soru
+    sayısını gir.</li>
+    <li><b>Tekrar kendiliğinden planlanır.</b> 1, 3, 7 ve 21 gün sonrası.
+    Zorlandığın konu daha sık, oturmuş konu daha seyrek gelir.</li>
+    <li><b>Denemeni çöz, netini gir.</b> Hangi derste dağıldığını konu
+    bazında görürsün.</li>
+  </ol>
+
+  <p>
+    <span class="rozet">Hesap yok</span>
+    <span class="rozet">Reklam yok</span>
+    <span class="rozet">Çevrimdışı</span>
+    <span class="rozet">Açık kaynak</span>
+  </p>
+
+  <p>LGS, YKS, KPSS, DGS ve ortaokul–lise dersleri için 15 hazır şablonla
+  geliyor. Kendi derslerini de kurabilirsin.</p>
+
+  <footer>
+    <a href="destek.html">Destek</a> ·
+    <a href="gizlilik.html">Gizlilik</a> ·
+    <a href="https://github.com/Voxyfy/ritim">GitHub</a><br>
+    Batuhan Haymana
+  </footer>
+</main>
+</body>
+</html>

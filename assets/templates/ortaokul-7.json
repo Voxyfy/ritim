@@ -1,0 +1,59 @@
+{
+  "id": "ortaokul-7",
+  "name": "7. Sınıf",
+  "group": "Ortaokul",
+  "description": "Türkiye Yüzyılı Maarif Modeli 7. sınıf temaları.",
+  "subjects": [
+    {
+      "name": "Türkçe",
+      "colorIndex": 0,
+      "topics": [
+        "Hayat Boyu Gelişim",
+        "Bir Hilal Uğruna",
+        "İletişim ve Sosyal İlişkiler",
+        "Türk Sanatı",
+        "Okuma Kültürü",
+        "Hak ve Sorumluluklar"
+      ]
+    },
+    {
+      "name": "Matematik",
+      "colorIndex": 1,
+      "topics": [
+        "Sayılar ve Nicelikler 1",
+        "Sayılar ve Nicelikler 2",
+        "İşlemlerle Cebirsel Düşünme ve Değişimler",
+        "Dönüşüm",
+        "Geometrik Nicelikler 1",
+        "Geometrik Nicelikler 2",
+        "Geometrik Şekiller",
+        "İstatistiksel Araştırma Süreci ve Veriden Olasılığa"
+      ]
+    },
+    {
+      "name": "Fen Bilimleri",
+      "colorIndex": 2,
+      "topics": [
+        "Uzay Çağı",
+        "Kuvvet ve Enerjiyi Keşfedelim",
+        "Vücudumuzdaki Sistemler",
+        "Işığın Kırılması ve Mercekler",
+        "Maddenin Doğasına Yolculuk",
+        "Elektriklenme",
+        "Sürdürülebilir Yaşam ve Geri Dönüşüm"
+      ]
+    },
+    {
+      "name": "Sosyal Bilgiler",
+      "colorIndex": 9,
+      "topics": [
+        "Birlikte Yaşamak",
+        "Evimiz Dünya",
+        "Ortak Mirasımız",
+        "Yaşayan Demokrasimiz",
+        "Hayatımızdaki Ekonomi",
+        "Teknoloji ve Sosyal Bilimler"
+      ]
+    }
+  ]
+}

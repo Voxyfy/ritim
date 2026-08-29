@@ -1,0 +1,135 @@
+{
+  "id": "lise-9",
+  "name": "9. Sınıf",
+  "group": "Lise ve YKS",
+  "description": "9. sınıf ders içerikleri; TYT'nin de ağırlıklı kaynağı.",
+  "subjects": [
+    {
+      "name": "Türk Dili ve Edebiyatı",
+      "colorIndex": 0,
+      "topics": [
+        "Edebiyat Nedir?",
+        "Metinlerin Sınıflandırılması",
+        "Hikâye",
+        "Şiir",
+        "Masal ve Fabl",
+        "Roman",
+        "Tiyatro",
+        "Biyografi ve Otobiyografi",
+        "Mektup ve E-posta",
+        "Günlük ve Blog",
+        "Yazım Kuralları",
+        "Noktalama İşaretleri"
+      ]
+    },
+    {
+      "name": "Matematik",
+      "colorIndex": 1,
+      "topics": [
+        "Mantık ve Önermeler",
+        "Kümeler",
+        "Sayı Kümeleri",
+        "Denklem ve Eşitsizlikler",
+        "Üslü ve Köklü İfadeler",
+        "Oran, Orantı ve Problemler",
+        "Algoritma ve Bilişim",
+        "Üçgenlerde Açı ve Kenar",
+        "Eşlik ve Benzerlik",
+        "Üçgenlerde Alan",
+        "İstatistiksel Araştırma Süreci",
+        "Sayma ve Olasılık"
+      ]
+    },
+    {
+      "name": "Fizik",
+      "colorIndex": 2,
+      "topics": [
+        "Fizik Bilimine Giriş",
+        "Madde ve Özellikleri",
+        "Hareket ve Kuvvet",
+        "Basınç ve Kaldırma Kuvveti",
+        "İş, Güç ve Enerji",
+        "Isı, Sıcaklık ve Genleşme"
+      ]
+    },
+    {
+      "name": "Kimya",
+      "colorIndex": 7,
+      "topics": [
+        "Kimya Bilimi",
+        "Atom ve Periyodik Sistem",
+        "Kimyasal Türler Arası Etkileşimler",
+        "Maddenin Hâlleri",
+        "Doğa ve Kimya",
+        "Kimya Her Yerde"
+      ]
+    },
+    {
+      "name": "Biyoloji",
+      "colorIndex": 8,
+      "topics": [
+        "Canlıların Ortak Özellikleri",
+        "Canlıların Yapısındaki Temel Bileşikler",
+        "Hücre ve Organelleri",
+        "Hücre Zarından Madde Geçişi",
+        "Canlıların Sınıflandırılması",
+        "Dünyamızın Geleceği"
+      ]
+    },
+    {
+      "name": "Tarih",
+      "colorIndex": 3,
+      "topics": [
+        "Tarih ve Zaman",
+        "İnsanlığın İlk Dönemleri",
+        "Orta Çağ'da Dünya",
+        "İlk ve Orta Çağlarda Türk Dünyası",
+        "İslam Medeniyetinin Doğuşu",
+        "Türklerin İslamiyet'i Kabulü ve İlk Türk - İslam Devletleri"
+      ]
+    },
+    {
+      "name": "Coğrafya",
+      "colorIndex": 9,
+      "topics": [
+        "Doğa ve İnsan",
+        "Coğrafi Konum",
+        "Harita Bilgisi",
+        "Mekânsal Teknolojiler ve CBS",
+        "Dünya'nın Şekli ve Hareketleri",
+        "İklim Bilgisi",
+        "İç ve Dış Kuvvetler",
+        "Nüfus ve Yerleşme",
+        "Doğal Afetler",
+        "Çevre ve Toplum"
+      ]
+    },
+    {
+      "name": "İngilizce",
+      "colorIndex": 4,
+      "topics": [
+        "Studying Abroad",
+        "My Environment",
+        "Movies",
+        "Human in Nature",
+        "Inspirational People",
+        "Bridging Cultures",
+        "World Heritage",
+        "Emergency and Health",
+        "Invitations and Celebrations",
+        "Television and Social Media"
+      ]
+    },
+    {
+      "name": "Din Kültürü",
+      "colorIndex": 5,
+      "topics": [
+        "Bilgi ve İnanç",
+        "Din ve İslam",
+        "İslam ve İbadet",
+        "Gençlik ve Değerler",
+        "Gönül Coğrafyamız"
+      ]
+    }
+  ]
+}
