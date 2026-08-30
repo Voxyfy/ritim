@@ -23,7 +23,7 @@ Ortaokuldan üniversiteye kadar çalışır: müfredat koda gömülü değil, ş
 [Neden](#neden) · [Özellikler](#özellikler) · [Hazır şablonlar](#hazır-şablonlar) ·
 [Tekrar motoru](#tekrar-motoru) · [Deneme analizi](#deneme-sınavı-analizi) ·
 [Kurulum](#kurulum) · [Proje yapısı](#proje-yapısı) · [Testler](#testler) ·
-[Katkı](#katkı)
+[Ekran görüntüleri](#ekran-görüntüleri) · [Yayın](#yayın) · [Katkı](#katkı)
 
 ## Neden
 
@@ -225,6 +225,9 @@ assets/templates/               # Şablonlar (JSON)
 assets/fonts/                   # Plus Jakarta Sans (400-800)
 assets/illustrations/           # unDraw çizimleri, palete boyanmış
 test/                           # Veri katmanı ve akış testleri
+tool/                           # İkon, illüstrasyon ve ekran görüntüsü araçları
+docs/                           # GitHub Pages sayfaları + mağaza metinleri
+screenshots/                    # App Store kareleri, boyut sınıfına göre
 ```
 
 Mimari kuralları:
@@ -232,6 +235,7 @@ Mimari kuralları:
 - **Renk sabiti yalnızca `core/theme` içinde bulunur.** Bir ekranda `Color(0x…)` görürseniz o bir hatadır.
 - **Sorgular `RitimDatabase` içinde durur.** Yüzey bir ekranı aştığında özellik bazlı DAO'ya taşınır.
 - **Ekranlar veritabanını doğrudan tanımaz**, sağlayıcılar üzerinden okur; testlerde bellek içi bir veritabanıyla değiştirilebilmesinin sebebi budur.
+- **Bileşen temalarındaki `TextStyle`'a `fontFamily` elle yazılır.** `ThemeData.fontFamily` yalnızca `textTheme`e uygulanıyor; `appBarTheme`, `filledButtonTheme` ve `snackBarTheme` kapsam dışında kalıyor. Bu üçü bir süre uygulamadaki tek sistem yazı tipiyle çizilen metinlerdi ve ancak ekran görüntüsü çekerken fark edildi. Aynı tuzak `AnimatedDefaultTextStyle` ve `DefaultTextStyle` için de geçerli: biçemi sıfırdan kurmak yerine temadan türetin.
 
 ## Yeni şablon eklemek
 
@@ -283,10 +287,80 @@ Veritabanı testleri bellek içi SQLite kullanır, cihaz gerekmez. Kapsam:
 | `review_ladder_test.dart` | Tekrar merdiveninin saf karar mantığı |
 | `review_engine_test.dart` | Çalışma → tekrar zinciri, hatırlatma ayarları |
 | `onboarding_flow_test.dart` | Kurulum akışı ve yönlendirme (widget testi) |
+| `screenshot_capture_test.dart` | Test değil, **çekim aracı** — bkz. [Ekran görüntüleri](#ekran-görüntüleri). Olağan koşuda atlanır. |
 
 Widget testlerinde drift akışlarına abone olup ilk değeri beklemeyin
 (`watchX().first`); sahte saat altında ilerlemez ve test kilitlenir. Tek
 seferlik okuma (`select(...).get()`) kullanın.
+
+## Ekran görüntüleri
+
+Mağaza kareleri elle çekilmiyor; gerçek widget ağacından üretiliyor:
+
+```bash
+RITIM_SHOTS=1 flutter test test/screenshot_capture_test.dart --tags screenshots
+python3 tool/flatten_screenshots.py
+```
+
+İkinci adım zorunlu. `RepaintBoundary.toImage` her zaman RGBA üretiyor ve
+App Store Connect alfa kanalı taşıyan görselleri reddediyor — üstelik bunu
+ölçüyle ilgiliymiş gibi genel bir mesajla bildiriyor.
+
+**Neden widget testi.** Simülatörde programatik dokunma yok, `flutter drive`
+tek iş için ağır kalıyor. Widget testi gerçek ağacı tam çözünürlükte
+kurabildiği için kareler uygulamanın kendisinden çıkıyor — montaj değil.
+Görüntü `matchesGoldenFile` ile değil `toImage` ile alınıyor: golden
+karşılaştırıcısı 1x piksel oranıyla yakalıyor ve mağazanın istediğinden dört
+kat küçük dosya üretiyor.
+
+Karelerdeki veri de uydurma değil: LGS 8 şablonu uygulanıyor, oturumlar
+gerçek `logStudySession` çağrılarıyla haftaya yayılıyor, netler
+`ExamScoring` ile hesaplanıyor.
+
+| Klasör | Piksel | App Store yuvası |
+|---|---|---|
+| `screenshots/ios-6.9/` | 1320 × 2868 | 6.9" — zorunlu olan tek iPhone yuvası |
+| `screenshots/ios-6.7/` | 1290 × 2796 | 6.7" |
+| `screenshots/ios-6.5/` | 1242 × 2688 | 6.5" |
+
+Klasör adı doğrudan yuvanın adıdır. 1290 × 2796'yı "6.9" sanmak yükleme
+reddine yol açar; o ölçü 6.7" sınıfına aittir.
+
+## Yayın
+
+Mağaza metinleri, TestFlight metinleri, gizlilik/destek bağlantıları ve sürüm
+gönderme süreci tek dosyada: [`docs/app-store.md`](docs/app-store.md).
+
+| | |
+|---|---|
+| Bundle ID | `com.batuhanhaymana.ritim` |
+| Mağaza adı | Ritim: Çalışma Planı |
+| Ana ekran adı | Ritim (`CFBundleDisplayName`) |
+| En düşük iOS | 15.0 |
+
+Sürüm numarası `pubspec.yaml`'daki tek satırdan geliyor:
+
+```
+version: 1.0.0+2
+        └─┬─┘ └┬┘
+          │    └── build numarası  → CFBundleVersion
+          └────── pazarlama sürümü → CFBundleShortVersionString
+```
+
+Build numarası **her yüklemede** artmak zorunda; Apple aynı numarayı ikinci
+kez kabul etmiyor, yükleme reddedilse bile o numara harcanmış sayılıyor.
+Pazarlama sürümü yalnızca App Store'a yeni sürüm çıkarken artar.
+
+```bash
+flutter test && flutter analyze
+flutter build ipa --release
+open build/ios/archive/Runner.xcarchive   # Distribute App → App Store Connect
+```
+
+`docs/` klasörü GitHub Pages ile yayınlanır (`main` dalı, `/docs` klasörü) ve
+App Store'un istediği destek ile gizlilik bağlantılarını karşılar. Apple bu
+adresleri inceleme sırasında gerçekten açıyor; 404 veren bir gizlilik
+bağlantısı red sebebidir.
 
 ## Katkı
 
@@ -315,7 +389,9 @@ Sayfaların kaynağı `docs/` klasöründedir ve GitHub Pages ile yayınlanır.
 | ✅ | Gizlilik, destek ve tanıtım sayfaları (`docs/`) |
 | ✅ | App Store metinleri (`docs/app-store.md`) |
 | ✅ | App Store ekran görüntüleri (`screenshots/`) |
-| 🔜 | TestFlight kapalı test |
+| ✅ | TestFlight'a ilk yükleme |
+| 🔜 | Kapalı test geri bildirimleri |
+| 🔜 | App Store incelemesine gönderim |
 | 💭 | Yedekleme / dışa aktarma |
 | 💭 | Veli için paylaşılabilir haftalık özet |
 | 💭 | Odak zamanlayıcısı (pomodoro) |
