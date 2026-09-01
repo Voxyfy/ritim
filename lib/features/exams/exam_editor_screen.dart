@@ -66,10 +66,21 @@ class _ExamEditorScreenState extends ConsumerState<ExamEditorScreen> {
 
   int _read(TextEditingController c) => int.tryParse(c.text.trim()) ?? 0;
 
+  /// Boş bırakılan ada tarihten bir karşılık üretiliyor.
+  ///
+  /// Ad alanı ekranın en üstünde; ders sonuçlarını girmek için aşağı kaydıran
+  /// öğrenci onu hiç görmüyor. Önceden ad boşsa `_save` sessizce geri
+  /// dönüyordu: düğme basılıyor, hiçbir şey olmuyor, hiçbir şey de
+  /// söylenmiyordu. App Review'un "Kaydet tepkisiz" diye reddettiği davranış
+  /// buydu. Ad artık zorunlu değil ve üretilen karşılık alanın ipucunda
+  /// yazılı, yani kaydedilecek ad basmadan önce görünüyor.
+  String get _fallbackName =>
+      '${DateFormat('d MMMM', 'tr_TR').format(_takenOn)} denemesi';
+
   Future<void> _save() async {
     if (_saving) return;
-    final name = _name.text.trim();
-    if (name.isEmpty) return;
+    final typed = _name.text.trim();
+    final name = typed.isEmpty ? _fallbackName : typed;
 
     setState(() => _saving = true);
 
@@ -82,14 +93,24 @@ class _ExamEditorScreenState extends ConsumerState<ExamEditorScreen> {
       );
     });
 
-    final examId = await ref.read(databaseProvider).saveMockExam(
-          name: name,
-          takenOn: _takenOn,
-          penalty: _penalty ?? WrongPenalty.none,
-          results: results,
-        );
+    try {
+      final examId = await ref.read(databaseProvider).saveMockExam(
+            name: name,
+            takenOn: _takenOn,
+            penalty: _penalty ?? WrongPenalty.none,
+            results: results,
+          );
 
-    if (mounted) context.go('${Routes.exams}/$examId');
+      if (mounted) context.go('${Routes.exams}/$examId');
+    } catch (error) {
+      // Yazma başarısız olursa düğme kilitli kalmamalı: bir daha basılamayan
+      // Kaydet, kullanıcının gözünde tepkisiz Kaydet'tir.
+      if (!mounted) return;
+      setState(() => _saving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Deneme kaydedilemedi. Tekrar dene.')),
+      );
+    }
   }
 
   @override
@@ -121,10 +142,11 @@ class _ExamEditorScreenState extends ConsumerState<ExamEditorScreen> {
           TextField(
             controller: _name,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
-              hintText: 'Deneme adı — "TYT Deneme 3"',
+            decoration: InputDecoration(
+              // İpucu, alan boş bırakılırsa kaydedilecek adın kendisi.
+              hintText: _fallbackName,
               border: InputBorder.none,
-              hintStyle: TextStyle(color: AppColors.textTertiary),
+              hintStyle: const TextStyle(color: AppColors.textTertiary),
             ),
             style: const TextStyle(
               fontSize: 20,

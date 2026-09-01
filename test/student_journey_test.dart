@@ -262,6 +262,9 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextField).first, 'Organik Kimya');
+    // "Dersi ekle" ad boşken devre dışı; yazılan ad düğmeye yansısın diye
+    // dokunmadan önce bir kare çizilmeli. enterText tek başına çizmiyor.
+    await tester.pump();
     await tester.tap(find.widgetWithText(FilledButton, 'Dersi ekle'));
     await tester.pumpAndSettle();
 

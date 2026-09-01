@@ -38,38 +38,57 @@ class _SubjectEditorSheetState extends ConsumerState<SubjectEditorSheet> {
 
   bool get _isNew => widget.existing == null;
 
+  /// Adsız bir ders kaydedilemez, ama bunu düğmeye basıldığında sessizce geri
+  /// dönerek anlatmak "düğme bozuk" demekle aynı şey. Şart düğmenin
+  /// görünüşünde duruyor: ad boşken düğme sönük ve basılmıyor.
+  bool get _canSave => !_saving && _name.text.trim().isNotEmpty;
+
   @override
   void initState() {
     super.initState();
+    // Düğmenin etkinliği yazılan ada bağlı; her tuşta yeniden çizilmeli.
+    _name.addListener(_onNameChanged);
     if (_isNew) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _focus.requestFocus());
     }
   }
 
+  void _onNameChanged() => setState(() {});
+
   @override
   void dispose() {
+    _name.removeListener(_onNameChanged);
     _name.dispose();
     _focus.dispose();
     super.dispose();
   }
 
   Future<void> _save() async {
+    if (!_canSave) return;
     final name = _name.text.trim();
-    if (name.isEmpty || _saving) return;
     setState(() => _saving = true);
 
     final db = ref.read(databaseProvider);
-    if (_isNew) {
-      await db.addSubject(name: name, colorIndex: _colorIndex);
-    } else {
-      await db.updateSubject(
-        widget.existing!.id,
-        name: name,
-        colorIndex: _colorIndex,
+    try {
+      if (_isNew) {
+        await db.addSubject(name: name, colorIndex: _colorIndex);
+      } else {
+        await db.updateSubject(
+          widget.existing!.id,
+          name: name,
+          colorIndex: _colorIndex,
+        );
+      }
+
+      if (mounted) Navigator.of(context).pop(true);
+    } catch (error) {
+      // Kalıcı olarak kilitli kalan bir düğme, tepkisiz bir düğmedir.
+      if (!mounted) return;
+      setState(() => _saving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ders kaydedilemedi. Tekrar dene.')),
       );
     }
-
-    if (mounted) Navigator.of(context).pop(true);
   }
 
   @override
@@ -145,7 +164,7 @@ class _SubjectEditorSheetState extends ConsumerState<SubjectEditorSheet> {
               ),
               const SizedBox(height: Gap.xxl),
               FilledButton(
-                onPressed: _saving ? null : _save,
+                onPressed: _canSave ? _save : null,
                 child: Text(_isNew ? 'Dersi ekle' : 'Kaydet'),
               ),
             ],

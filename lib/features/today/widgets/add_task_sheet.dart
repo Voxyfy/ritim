@@ -37,23 +37,32 @@ class _AddTaskSheetState extends ConsumerState<AddTaskSheet> {
   int _dayOffset = 0;
   bool _saving = false;
 
+  /// Başlıksız bir görev kaydedilemez. Bunu basıldığında sessizce geri dönerek
+  /// anlatmak yerine düğmenin görünüşüne taşıdık: başlık boşken düğme sönük.
+  bool get _canSave => !_saving && _controller.text.trim().isNotEmpty;
+
   @override
   void initState() {
     super.initState();
+    // Düğmenin etkinliği yazılan başlığa bağlı; her tuşta yeniden çizilmeli.
+    _controller.addListener(_onTitleChanged);
     // Klavye sayfayla birlikte gelsin; ekstra bir dokunuş daha istemiyoruz.
     WidgetsBinding.instance.addPostFrameCallback((_) => _focus.requestFocus());
   }
 
+  void _onTitleChanged() => setState(() {});
+
   @override
   void dispose() {
+    _controller.removeListener(_onTitleChanged);
     _controller.dispose();
     _focus.dispose();
     super.dispose();
   }
 
   Future<void> _save() async {
+    if (!_canSave) return;
     final title = _controller.text.trim();
-    if (title.isEmpty || _saving) return;
 
     setState(() => _saving = true);
 
@@ -65,13 +74,22 @@ class _AddTaskSheetState extends ConsumerState<AddTaskSheet> {
       topicId = topics.isNotEmpty ? topics.first.id : null;
     }
 
-    await ref.read(databaseProvider).addTask(
-          title: title,
-          dueOn: today().addDays(_dayOffset),
-          topicId: topicId,
-        );
+    try {
+      await ref.read(databaseProvider).addTask(
+            title: title,
+            dueOn: today().addDays(_dayOffset),
+            topicId: topicId,
+          );
 
-    if (mounted) Navigator.of(context).pop(true);
+      if (mounted) Navigator.of(context).pop(true);
+    } catch (error) {
+      // Kalıcı olarak kilitli kalan bir düğme, tepkisiz bir düğmedir.
+      if (!mounted) return;
+      setState(() => _saving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Görev eklenemedi. Tekrar dene.')),
+      );
+    }
   }
 
   @override
@@ -159,7 +177,7 @@ class _AddTaskSheetState extends ConsumerState<AddTaskSheet> {
               ],
               const SizedBox(height: Gap.xl),
               FilledButton(
-                onPressed: _saving ? null : _save,
+                onPressed: _canSave ? _save : null,
                 child: const Text('Ekle'),
               ),
             ],
