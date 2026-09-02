@@ -9,14 +9,16 @@
 
 ![Flutter](https://img.shields.io/badge/Flutter-3.41-0468D7?logo=flutter&logoColor=white)
 ![Platform](https://img.shields.io/badge/platform-iOS%20%C2%B7%20Android-lightgrey)
-![Tests](https://img.shields.io/badge/tests-149%20passing-7CB518)
+![App Store](https://img.shields.io/badge/App%20Store-1.0.0-0D96F6?logo=apple&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-154%20passing-7CB518)
 ![License](https://img.shields.io/badge/license-MIT-C9512B)
 
 Ritim düz bir yapılacaklar listesi değil. Öğrencinin gerçek birimi görev değil **konu**: bir konuya çalışırsın, uygulama o konuyu 1-3-7-21 gün merdiveninde tekrara koyar, tekrar günü geldiğinde notlarını ve yanlış kayıtlarını önüne getirir.
 
 Ortaokuldan üniversiteye kadar çalışır: müfredat koda gömülü değil, şablon olarak gelir ve tamamen düzenlenebilir.
 
-> **Durum:** geliştirme aşamasında, henüz mağazada değil. İlk yayın hedefi App Store.
+> **Durum:** 1.0.0 sürümü 2 Eylül 2026'dan beri App Store'da.
+> [**App Store'dan indir →**](https://apps.apple.com/tr/app/ritim-%C3%A7al%C4%B1%C5%9Fma-plan%C4%B1/id6806676753?l=tr) · Android ikinci aşamada.
 
 ## İçindekiler
 
@@ -166,7 +168,7 @@ Tekrar günü akşamı tek bir hatırlatma. Saat seçilebilir (varsayılan 19:00
 
 ## Teknoloji
 
-- **Flutter / Dart** — ilk yayın **iOS / App Store**, Android ikinci aşamada
+- **Flutter / Dart** — **iOS / App Store**'da yayında, Android ikinci aşamada
 - **Drift + SQLite** — çevrimdışı depo, tip güvenli sorgular
 - **Riverpod** — durum yönetimi
 - **go_router** — yönlendirme
@@ -225,6 +227,7 @@ assets/templates/               # Şablonlar (JSON)
 assets/fonts/                   # Plus Jakarta Sans (400-800)
 assets/illustrations/           # unDraw çizimleri, palete boyanmış
 test/                           # Veri katmanı ve akış testleri
+integration_test/               # Gerçek cihaz/simülatörde koşan uçtan uca testler
 tool/                           # İkon, illüstrasyon ve ekran görüntüsü araçları
 docs/                           # GitHub Pages sayfaları + mağaza metinleri
 screenshots/                    # App Store kareleri, boyut sınıfına göre
@@ -287,7 +290,16 @@ Veritabanı testleri bellek içi SQLite kullanır, cihaz gerekmez. Kapsam:
 | `review_ladder_test.dart` | Tekrar merdiveninin saf karar mantığı |
 | `review_engine_test.dart` | Çalışma → tekrar zinciri, hatırlatma ayarları |
 | `onboarding_flow_test.dart` | Kurulum akışı ve yönlendirme (widget testi) |
+| `unresponsive_button_test.dart` | Ad boşken kaydetme düğmelerinin sessiz kalmaması — 1.0 (3) reddinin sebebi (widget testi) |
+| `format_test.dart` | Süre ve gecikme biçimlendirme (`1 sa 20 dk`, `3 gün gecikti`) |
 | `screenshot_capture_test.dart` | Test değil, **çekim aracı** — bkz. [Ekran görüntüleri](#ekran-görüntüleri). Olağan koşuda atlanır. |
+
+`integration_test/exam_save_test.dart` App Review'un iPad'de bildirdiği hatayı
+gerçek simülatörde birebir tekrar eder; `flutter test` koşusuna dahil değildir:
+
+```bash
+flutter test integration_test/exam_save_test.dart -d <simülatör UDID>
+```
 
 Widget testlerinde drift akışlarına abone olup ilk değeri beklemeyin
 (`watchX().first`); sahte saat altında ilerlemez ve test kilitlenir. Tek
@@ -335,13 +347,14 @@ gönderme süreci tek dosyada: [`docs/app-store.md`](docs/app-store.md).
 |---|---|
 | Bundle ID | `com.batuhanhaymana.ritim` |
 | Mağaza adı | Ritim: Çalışma Planı |
+| App Store | [id6806676753](https://apps.apple.com/tr/app/ritim-%C3%A7al%C4%B1%C5%9Fma-plan%C4%B1/id6806676753?l=tr) — 1.0.0, 2 Eylül 2026 |
 | Ana ekran adı | Ritim (`CFBundleDisplayName`) |
 | En düşük iOS | 15.0 |
 
 Sürüm numarası `pubspec.yaml`'daki tek satırdan geliyor:
 
 ```
-version: 1.0.0+2
+version: 1.0.0+4
         └─┬─┘ └┬┘
           │    └── build numarası  → CFBundleVersion
           └────── pazarlama sürümü → CFBundleShortVersionString
@@ -350,6 +363,12 @@ version: 1.0.0+2
 Build numarası **her yüklemede** artmak zorunda; Apple aynı numarayı ikinci
 kez kabul etmiyor, yükleme reddedilse bile o numara harcanmış sayılıyor.
 Pazarlama sürümü yalnızca App Store'a yeni sürüm çıkarken artar.
+
+İlk gönderim (build 3) Guideline 2.1(a) ile reddedildi: ad boş bırakıldığında
+kaydet düğmesi hiçbir şey yapmadan geri dönüyordu ve inceleyici bunu "düğme
+tepkisiz" diye okudu. Sessiz erken dönüş bir tasarım hatası olarak kabul
+edildi; artık her doğrulama hatası görünür bir mesaj üretir. Ayrıntı ve
+App Review'a verilen cevap: [`docs/app-review-reply.md`](docs/app-review-reply.md).
 
 ```bash
 flutter test && flutter analyze
@@ -390,8 +409,9 @@ Sayfaların kaynağı `docs/` klasöründedir ve GitHub Pages ile yayınlanır.
 | ✅ | App Store metinleri (`docs/app-store.md`) |
 | ✅ | App Store ekran görüntüleri (`screenshots/`) |
 | ✅ | TestFlight'a ilk yükleme |
-| 🔜 | Kapalı test geri bildirimleri |
-| 🔜 | App Store incelemesine gönderim |
+| ✅ | App Store'da yayın — 1.0.0, 2 Eylül 2026 |
+| 🔜 | Açılış ekranı (hâlâ Flutter'ın varsayılan placeholder'ı) |
+| 🔜 | Android yayını |
 | 💭 | Yedekleme / dışa aktarma |
 | 💭 | Veli için paylaşılabilir haftalık özet |
 | 💭 | Odak zamanlayıcısı (pomodoro) |
