@@ -136,7 +136,7 @@ class _IntroTourScreenState extends ConsumerState<IntroTourScreen> {
                     width: i == _index ? 22 : 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: i == _index ? AppColors.accent : AppColors.border,
+                      color: i == _index ? AppColors.selection : AppColors.border,
                       borderRadius: BorderRadius.circular(Radii.full),
                     ),
                   ),

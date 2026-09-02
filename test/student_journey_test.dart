@@ -10,6 +10,7 @@ import 'package:ritim/data/db/database.dart';
 import 'package:ritim/data/db/tables.dart';
 import 'package:ritim/data/templates/study_template.dart';
 import 'package:ritim/main.dart';
+
 /// Gerçek bir öğrencinin uygulamayı ilk kez açtığı andan ilk tekrarına kadar
 /// olan yolculuğu, tek testte baştan sona.
 ///
@@ -86,13 +87,20 @@ void main() {
   }
 
   /// Sekme çubuğundaki bir sekmeye geçer.
+  // Sekmeler yalnızca ikon; etiket erişilebilirlik ağacında duruyor ama
+  // widget ağacında metin yok. Bu yüzden anahtarla bulunuyor.
+  Key sekmeAnahtari(String etiket) => Key(
+    'sekme-${const {'Bugün': 'bugun', 'Plan': 'plan', 'Dersler': 'dersler', 'Deneme': 'deneme', 'Ayarlar': 'ayarlar'}[etiket]!}',
+  );
+
   Future<void> goToTab(WidgetTester tester, String label) async {
-    await tester.tap(find.text(label));
+    await tester.tap(find.byKey(sekmeAnahtari(label)));
     await tester.pumpAndSettle();
   }
 
-  testWidgets('ilk açılıştan ilk tekrara: bir öğrencinin tam yolculuğu',
-      (tester) async {
+  testWidgets('ilk açılıştan ilk tekrara: bir öğrencinin tam yolculuğu', (
+    tester,
+  ) async {
     await pumpApp(tester);
 
     // 1. Karşılama: tek vaat, tek düğme.
@@ -127,7 +135,10 @@ void main() {
     // 4. Bugün ekranı boş. Boş ekran çıkmaz sokak olmamalı: buradan devam
     //    edecek görünür bir eylem olmalı.
     expect(find.text('Bugün için bir şey planlamadın'), findsOneWidget);
-    expect(find.widgetWithText(FilledButton, 'Haftalık plan kur'), findsOneWidget);
+    expect(
+      find.widgetWithText(FilledButton, 'Haftalık plan kur'),
+      findsOneWidget,
+    );
 
     // 5. Öğrenci haftalık plan kuruyor.
     await tester.tap(find.widgetWithText(FilledButton, 'Haftalık plan kur'));
@@ -154,9 +165,9 @@ void main() {
     await tester.pumpAndSettle();
 
     // Plan görevleri yazıldı mı?
-    final planTasks = await (db.select(db.tasks)
-          ..where((t) => t.source.equalsValue(TaskSource.plan)))
-        .get();
+    final planTasks = await (db.select(
+      db.tasks,
+    )..where((t) => t.source.equalsValue(TaskSource.plan))).get();
     expect(planTasks, isNotEmpty, reason: 'plan hiç görev üretmedi');
 
     // 6. Plan sekmesinde planı görebiliyor mu? (Kurup göremediği bir plan,
@@ -206,9 +217,9 @@ void main() {
     final sessions = await db.select(db.studySessions).get();
     expect(sessions, hasLength(1));
 
-    final reviews = await (db.select(db.tasks)
-          ..where((t) => t.source.equalsValue(TaskSource.review)))
-        .get();
+    final reviews = await (db.select(
+      db.tasks,
+    )..where((t) => t.source.equalsValue(TaskSource.review))).get();
     expect(reviews, hasLength(1), reason: 'çalışma tekrar üretmedi');
     expect(reviews.single.title, contains('Çarpanlar ve Katlar'));
 
@@ -240,8 +251,9 @@ void main() {
     await disposeApp(tester);
   });
 
-  testWidgets('şablon almayan öğrenci de uygulamayı kurabiliyor',
-      (tester) async {
+  testWidgets('şablon almayan öğrenci de uygulamayı kurabiliyor', (
+    tester,
+  ) async {
     await pumpApp(tester);
     await tester.tap(find.text('Başlayalım'));
     await tester.pumpAndSettle();

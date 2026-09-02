@@ -66,7 +66,7 @@ class ReminderSheet extends ConsumerWidget {
                 Switch(
                   value: settings.enabled,
                   activeThumbColor: AppColors.surface,
-                  activeTrackColor: AppColors.accent,
+                  activeTrackColor: AppColors.selection,
                   onChanged: (value) async {
                     // Açarken izin gerekebilir; kapatırken sormaya gerek yok.
                     var granted = true;
@@ -101,13 +101,11 @@ class ReminderSheet extends ConsumerWidget {
                       ),
                       decoration: BoxDecoration(
                         color: settings.hour == hour
-                            ? AppColors.accentSoft
-                            : AppColors.surface,
+                            ? AppColors.selection : AppColors.surface,
                         borderRadius: BorderRadius.circular(Radii.full),
                         border: Border.all(
                           color: settings.hour == hour
-                              ? AppColors.accent
-                              : AppColors.border,
+                              ? AppColors.selection : AppColors.border,
                           width: settings.hour == hour ? 1.5 : 1,
                         ),
                       ),
@@ -116,8 +114,7 @@ class ReminderSheet extends ConsumerWidget {
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
                           color: settings.hour == hour
-                              ? AppColors.accent
-                              : AppColors.textSecondary,
+                              ? AppColors.onSelection : AppColors.textSecondary,
                         ),
                       ),
                     ),

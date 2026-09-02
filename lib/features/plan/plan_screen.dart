@@ -10,10 +10,12 @@ import '../../core/theme/app_metrics.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_fab.dart';
 import '../../core/widgets/illustration.dart';
+import '../../core/widgets/pill_tabs.dart';
 import '../../data/db/database.dart';
 import '../../data/db/tables.dart';
 import 'weekly_plan_sheet.dart';
 import 'widgets/month_calendar.dart';
+
 /// Önümüzdeki iki haftanın planı.
 ///
 /// Bugün ekranı yalnızca bugünü gösteriyor; plan kurulduğunda öğrencinin
@@ -55,7 +57,8 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
         bottom: false,
         child: days.when(
           loading: () => const SizedBox.shrink(),
-          error: (error, stack) => Center(child: Text('Plan okunamadı: $error')),
+          error: (error, stack) =>
+              Center(child: Text('Plan okunamadı: $error')),
           data: (list) {
             final planned = list.where((d) => !d.isEmpty).toList();
 
@@ -72,10 +75,23 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                             Expanded(
                               child: Text('Planın', style: text.headlineMedium),
                             ),
-                            _ViewToggle(
-                              calendar: _calendar,
-                              onChanged: (value) =>
-                                  setState(() => _calendar = value),
+                            // Liste/takvim geçişi. Seçili parça koyu: kiremit
+                            // bu ekranda yalnızca "Plan kur" düğmesinde
+                            // kalıyor.
+                            PillTabs(
+                              items: const [
+                                PillTab(
+                                  icon: PhosphorIconsRegular.listBullets,
+                                  key: Key('plan-liste'),
+                                ),
+                                PillTab(
+                                  icon: PhosphorIconsRegular.calendarBlank,
+                                  key: Key('plan-takvim'),
+                                ),
+                              ],
+                              selected: _calendar ? 1 : 0,
+                              onSelect: (i) =>
+                                  setState(() => _calendar = i == 1),
                             ),
                           ],
                         ),
@@ -84,7 +100,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                           planned.isEmpty
                               ? 'Önümüzdeki iki hafta boş.'
                               : '${planned.length} günde '
-                                  '${planned.fold(0, (a, d) => a + d.items.length)} iş var.',
+                                    '${planned.fold(0, (a, d) => a + d.items.length)} iş var.',
                           style: text.bodySmall,
                         ),
                         if (_calendar) ...[
@@ -110,7 +126,12 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                   )
                 else
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(Gap.page, 0, Gap.page, Gap.listBottom),
+                    padding: const EdgeInsets.fromLTRB(
+                      Gap.page,
+                      0,
+                      Gap.page,
+                      Gap.listBottom,
+                    ),
                     sliver: SliverList.builder(
                       // Takvimdeyken yalnızca seçili gün listeleniyor.
                       // Takvimin altında on dört gün daha sıralamak, takvimi
@@ -187,7 +208,9 @@ class _DayRow extends StatelessWidget {
                       ? 'Bugün'
                       : DateFormat('d MMMM EEEE', 'tr_TR').format(day.day),
                   style: text.labelSmall?.copyWith(
-                    color: isToday ? AppColors.accent : AppColors.textTertiary,
+                    color: isToday
+                        ? AppColors.textPrimary
+                        : AppColors.textTertiary,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -249,8 +272,7 @@ class _PlanItemRow extends StatelessWidget {
                 color: item.task.done
                     ? AppColors.textTertiary
                     : AppColors.textPrimary,
-                decoration:
-                    item.task.done ? TextDecoration.lineThrough : null,
+                decoration: item.task.done ? TextDecoration.lineThrough : null,
                 decorationColor: AppColors.textTertiary,
               ),
             ),
@@ -275,7 +297,7 @@ class _SourceBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (label, colour) = switch (source) {
-      TaskSource.review => ('tekrar', AppColors.accent),
+      TaskSource.review => ('tekrar', AppColors.textSecondary),
       TaskSource.plan => ('plan', AppColors.textSecondary),
       TaskSource.manual => ('', AppColors.textTertiary),
     };
@@ -284,9 +306,7 @@ class _SourceBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: source == TaskSource.review
-            ? AppColors.accentSoft
-            : AppColors.surfaceMuted,
+        color: AppColors.surfaceMuted,
         borderRadius: BorderRadius.circular(Radii.full),
       ),
       child: Text(
@@ -325,75 +345,6 @@ class _SelectedEmptyDay extends StatelessWidget {
           const SizedBox(height: Gap.sm),
           Text('Bu gün boş.', style: text.bodySmall),
         ],
-      ),
-    );
-  }
-}
-
-/// Görünüm değiştirici: liste ya da takvim.
-class _ViewToggle extends StatelessWidget {
-  const _ViewToggle({required this.calendar, required this.onChanged});
-
-  final bool calendar;
-  final ValueChanged<bool> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(3),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceMuted,
-        borderRadius: BorderRadius.circular(Radii.full),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _ToggleButton(
-            icon: PhosphorIconsRegular.listBullets,
-            selected: !calendar,
-            onTap: () => onChanged(false),
-          ),
-          _ToggleButton(
-            icon: PhosphorIconsRegular.calendarBlank,
-            selected: calendar,
-            onTap: () => onChanged(true),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ToggleButton extends StatelessWidget {
-  const _ToggleButton({
-    required this.icon,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: Motion.quick,
-        padding: const EdgeInsets.symmetric(
-          horizontal: Gap.md,
-          vertical: Gap.sm,
-        ),
-        decoration: BoxDecoration(
-          color: selected ? AppColors.surface : Colors.transparent,
-          borderRadius: BorderRadius.circular(Radii.full),
-        ),
-        child: Icon(
-          icon,
-          size: IconSize.sm,
-          color: selected ? AppColors.accent : AppColors.textTertiary,
-        ),
       ),
     );
   }

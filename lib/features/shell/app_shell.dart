@@ -5,37 +5,49 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_metrics.dart';
-/// İki sekmeyi taşıyan kabuk.
+
+/// Sekmeleri taşıyan kabuk.
 ///
 /// Sekme çubuğu ekranın altına yapışık değil, yüzüyor: iOS'ta ekranın en
 /// altındaki şerit sistem çubuğuyla karışıyor ve kartlarla aynı yarıçapı
 /// paylaşan yüzen bir çubuk arayüzün geri kalanıyla aynı dili konuşuyor.
+///
+/// Sekmeler yalnızca ikon, etiket yok. 1.0'da etiket vardı; beş sekmeye 10.5
+/// puntoluk yazı sıkıştırınca çubuk bir hap değil bir şerit gibi okunuyordu.
+/// Seçili sekme koyu bir daireyle işaretleniyor ve daire sekmeler arasında
+/// kayıyor: gözün takip ettiği şey ikonun rengi değil, hareket eden yüzey.
+/// Erişilebilirlik için her sekmenin adı [Semantics] etiketinde duruyor.
 class AppShell extends StatelessWidget {
   const AppShell({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
 
   static const _tabs = [
-    (icon: PhosphorIconsRegular.sun, active: PhosphorIconsFill.sun, label: 'Bugün'),
+    (
+      icon: PhosphorIconsRegular.sun,
+      active: PhosphorIconsFill.sun,
+      label: 'Bugün',
+      key: Key('sekme-bugun'),
+    ),
     (
       icon: PhosphorIconsRegular.calendarBlank,
       active: PhosphorIconsFill.calendarBlank,
       label: 'Plan',
+      key: Key('sekme-plan'),
     ),
     (
       icon: PhosphorIconsRegular.books,
       active: PhosphorIconsFill.books,
       label: 'Dersler',
+      key: Key('sekme-dersler'),
     ),
     (
       icon: PhosphorIconsRegular.chartLineUp,
       active: PhosphorIconsFill.chartLineUp,
-      // "Denemeler" 68 piksellik sekmeye sığmıyor ve taşıyordu. Etiketi
-      // küçültmek yerine kısalttım: yazıyı sekmeden sekmeye farklı boyutta
-      // göstermek, çubuğun tek ritmini bozar.
-      label: 'Deneme',
+      label: 'Denemeler',
+      key: Key('sekme-deneme'),
     ),
-    // Ayarlar ayda bir açılan bir ekran ve ana gezinmenin dörtte birini
+    // Ayarlar ayda bir açılan bir ekran ve ana gezinmenin beşte birini
     // kaplıyor. Yine de sekmede: önce Dersler başlığındaki dişli ikonunun
     // arkasındaydı ve kullanıcı arayıp bulamadı. Bulunamayan bir ayar ekranı
     // hiç yok demek.
@@ -43,18 +55,17 @@ class AppShell extends StatelessWidget {
       icon: PhosphorIconsRegular.gear,
       active: PhosphorIconsFill.gear,
       label: 'Ayarlar',
+      key: Key('sekme-ayarlar'),
     ),
   ];
 
-  /// Sekme başına genişlik.
+  /// Sekme başına genişlik ve çubuk yüksekliği.
   ///
-  /// Çubuk önce ekranın tamamına yayılıyordu; dört sekme arasında geniş
-  /// boşluklar kalıyor ve çubuk yüzen bir öğeden çok bir şerit gibi
-  /// duruyordu. Sabit genişlik, çubuğu içeriği kadar tutuyor.
-  /// Beş sekme dar bir çubuğa sığmalı; 68 piksel, en küçük iPhone'da bile
-  /// kenar payı bırakıyor.
-  static const _tabWidth = 68.0;
-  static const _barHeight = 58.0;
+  /// Çubuk içeriği kadar geniş; ekrana yayılmıyor. Seçili daire çubuğun
+  /// yüksekliğinden 12 piksel küçük, yani her yanda 6 piksel beyaz pay var.
+  static const _tabWidth = 60.0;
+  static const _barHeight = 64.0;
+  static const _inset = 6.0;
 
   @override
   Widget build(BuildContext context) {
@@ -67,47 +78,36 @@ class AppShell extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.only(bottom: Gap.md),
           // heightFactor olmadan Center bütün boşluğu kaplayıp çubuğu dikeyde
-          // de ortalıyor; çubuk ekranın ortasında asılı kalıyordu. Değer 1
-          // olunca yükseklik içerikten geliyor, ortalama yalnızca yatayda
-          // kalıyor.
+          // de ortalıyor; çubuk ekranın ortasında asılı kalıyordu.
           child: Center(
             heightFactor: 1,
             child: Container(
               height: _barHeight,
-              width: _tabWidth * _tabs.length,
-              decoration: BoxDecoration(
+              width: _tabWidth * _tabs.length + _inset * 2,
+              padding: const EdgeInsets.all(_inset),
+              decoration: const BoxDecoration(
                 color: AppColors.surface,
-                borderRadius: BorderRadius.circular(Radii.full),
+                borderRadius: BorderRadius.all(Radius.circular(Radii.full)),
                 boxShadow: AppColors.floatingShadow,
-                border: Border.all(color: AppColors.hairline),
               ),
-              // Genişlik LayoutBuilder'dan okunuyor, elle hesaplanmıyor:
-              // kutunun bir piksellik kenarı iç genişliği daraltıyor ve sabit
-              // sayı iki piksel taşma üretiyordu.
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final slot = constraints.maxWidth / _tabs.length;
+                  final dot = constraints.maxHeight;
 
                   return Stack(
                     children: [
-                      // Seçili sekmenin arkasında kayan vurgu. Sekme
-                      // değişimini anlatan asıl işaret bu: ikonun rengi anında
-                      // değişiyor, ama gözün takip ettiği şey hareket eden
-                      // yüzey.
                       AnimatedPositioned(
                         duration: Motion.base,
                         curve: Motion.curve,
-                        left: slot * index,
+                        left: slot * index + (slot - dot) / 2,
                         top: 0,
-                        bottom: 0,
-                        width: slot,
-                        child: Padding(
-                          padding: const EdgeInsets.all(6),
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              color: AppColors.accentSoft,
-                              borderRadius: BorderRadius.circular(Radii.full),
-                            ),
+                        width: dot,
+                        height: dot,
+                        child: const DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: AppColors.selection,
+                            shape: BoxShape.circle,
                           ),
                         ),
                       ),
@@ -151,61 +151,34 @@ class _TabButton extends StatelessWidget {
     required this.onTap,
   });
 
-  final ({IconData icon, IconData active, String label}) tab;
+  final ({IconData icon, IconData active, String label, Key key}) tab;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final colour = selected ? AppColors.accent : AppColors.textTertiary;
-
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: onTap,
-      // Yükseklik çubuğun tamamı kadar: içerik kendi boyunda kalınca dikeyde
-      // yukarı kayıyor ve etiketin alt boşluğu yüzünden ortalanmamış
-      // görünüyordu.
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
+    return Semantics(
+      label: tab.label,
+      selected: selected,
+      button: true,
+      child: GestureDetector(
+        key: tab.key,
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Center(
           // İkon seçilince hafifçe büyüyor. Dokunuşun karşılığını görmek,
           // sekmenin gerçekten değiştiğini anlatan en ucuz işaret.
-          AnimatedScale(
-            scale: selected ? 1.1 : 1,
+          child: AnimatedScale(
+            scale: selected ? 1.08 : 1,
             duration: Motion.quick,
             curve: Motion.curve,
             child: Icon(
               selected ? tab.active : tab.icon,
-              size: IconSize.md,
-              color: colour,
+              size: IconSize.lg,
+              color: selected ? AppColors.onSelection : AppColors.textSecondary,
             ),
           ),
-          const SizedBox(height: 3),
-          AnimatedDefaultTextStyle(
-            duration: Motion.quick,
-            curve: Motion.curve,
-            // Tema metin biçeminden türetiliyor, sıfırdan kurulmuyor.
-            // Çıplak bir `TextStyle` fontFamily taşımadığı için etiketler
-            // uygulamadaki tek Jakarta olmayan metin hâline geliyor ve
-            // cihazda sistem yazı tipiyle çiziliyordu; ekran görüntüsü
-            // çekerken fark ettik.
-            style: Theme.of(context).textTheme.labelSmall!.copyWith(
-                  fontSize: 10.5,
-                  height: 1,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                  color: colour,
-                ),
-            // Uzun bir etiket eklenirse taşmak yerine kırpılsın; çubuğun
-            // düzeni tek bir kelimeye bağlı kalmamalı.
-            child: Text(
-              tab.label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

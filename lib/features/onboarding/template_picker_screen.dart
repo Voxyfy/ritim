@@ -291,9 +291,9 @@ class _SelectionDot extends StatelessWidget {
       height: 24,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: selected ? AppColors.accent : Colors.transparent,
+        color: selected ? AppColors.selection : Colors.transparent,
         border: Border.all(
-          color: selected ? AppColors.accent : AppColors.border,
+          color: selected ? AppColors.selection : AppColors.border,
           width: 2,
         ),
       ),

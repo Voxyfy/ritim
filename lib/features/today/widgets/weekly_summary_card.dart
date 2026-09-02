@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../core/date_extensions.dart';
 import '../../../core/providers.dart';
@@ -17,13 +16,12 @@ class WeeklySummaryCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final streak = ref.watch(streakProvider).valueOrNull ?? 0;
     final summary = ref.watch(weeklySummaryProvider).valueOrNull;
     final daily = ref.watch(dailyMinutesProvider).valueOrNull ?? const [];
     final text = Theme.of(context).textTheme;
 
     // Hiç çalışma kaydı yokken kart boş bir kutu olarak durmasın.
-    if (summary == null || (summary.isEmpty && streak == 0)) {
+    if (summary == null || summary.isEmpty) {
       return const SizedBox.shrink();
     }
 
@@ -32,13 +30,9 @@ class WeeklySummaryCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Text('Bu hafta', style: text.titleMedium),
-              const Spacer(),
-              if (streak > 0) _StreakBadge(days: streak),
-            ],
-          ),
+          // Seri rozeti burada değil, günün başlığında: aynı sayı iki
+          // kartta yazınca ikisi de değerini kaybediyordu.
+          Text('Bu hafta', style: text.titleMedium),
           const SizedBox(height: Gap.lg),
           Row(
             children: [
@@ -49,42 +43,6 @@ class WeeklySummaryCard extends ConsumerWidget {
           ),
           const SizedBox(height: Gap.xl),
           _WeekBars(days: daily),
-        ],
-      ),
-    );
-  }
-}
-
-/// Seri rozeti.
-///
-/// Alev ikonu ve sayı; "3 gün" değil "3" yazıyor çünkü rozetin yanındaki
-/// ikon zaten ne sayıldığını söylüyor ve rozet dar.
-class _StreakBadge extends StatelessWidget {
-  const _StreakBadge({required this.days});
-
-  final int days;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: AppColors.progressTrack,
-        borderRadius: BorderRadius.circular(Radii.full),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(PhosphorIconsFill.flame, size: IconSize.sm, color: Color(0xFFE07B39)),
-          const SizedBox(width: 5),
-          Text(
-            '$days',
-            style: const TextStyle(
-              fontWeight: FontWeight.w800,
-              fontSize: 13,
-              color: AppColors.textPrimary,
-            ),
-          ),
         ],
       ),
     );
@@ -143,7 +101,7 @@ class _WeekBars extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: day.minutes == 0
                                     ? AppColors.progressTrack
-                                    : AppColors.accent,
+                                    : AppColors.selection,
                                 borderRadius:
                                     BorderRadius.circular(_barWidth / 2),
                               ),

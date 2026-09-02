@@ -59,7 +59,7 @@ void main() {
     }
 
     // Deneme sekmesi > yeni deneme.
-    await dokun(tester, find.text('Deneme'), 1200);
+    await dokun(tester, find.byKey(const Key('sekme-deneme')), 1200);
     await dokun(tester, find.text('Deneme ekle'), 1500);
     expect(find.text('Yeni deneme'), findsOneWidget);
 

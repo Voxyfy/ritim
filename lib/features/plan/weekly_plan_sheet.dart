@@ -152,7 +152,7 @@ class _WeeklyPlanSheetState extends ConsumerState<WeeklyPlanSheet> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
-                color: AppColors.accentSoft,
+                color: AppColors.surfaceMuted,
                 borderRadius: BorderRadius.circular(Radii.md),
               ),
               child: Text(
@@ -160,7 +160,7 @@ class _WeeklyPlanSheetState extends ConsumerState<WeeklyPlanSheet> {
                     ? 'En az bir gün seç.'
                     : 'Bu hafta $slots konu planlanacak.',
                 style: text.bodySmall?.copyWith(
-                  color: AppColors.accent,
+                  color: AppColors.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -203,10 +203,10 @@ class _DayChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: selected ? AppColors.accentSoft : AppColors.surface,
+          color: selected ? AppColors.selection : AppColors.surface,
           borderRadius: BorderRadius.circular(Radii.sm),
           border: Border.all(
-            color: selected ? AppColors.accent : AppColors.border,
+            color: selected ? AppColors.selection : AppColors.border,
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -215,7 +215,7 @@ class _DayChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 12.5,
             fontWeight: FontWeight.w700,
-            color: selected ? AppColors.accent : AppColors.textSecondary,
+            color: selected ? AppColors.onSelection : AppColors.textSecondary,
           ),
         ),
       ),
@@ -243,10 +243,10 @@ class _CountChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 14),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: selected ? AppColors.accentSoft : AppColors.surface,
+          color: selected ? AppColors.selection : AppColors.surface,
           borderRadius: BorderRadius.circular(Radii.md),
           border: Border.all(
-            color: selected ? AppColors.accent : AppColors.border,
+            color: selected ? AppColors.selection : AppColors.border,
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -255,7 +255,7 @@ class _CountChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w800,
-            color: selected ? AppColors.accent : AppColors.textSecondary,
+            color: selected ? AppColors.onSelection : AppColors.textSecondary,
           ),
         ),
       ),

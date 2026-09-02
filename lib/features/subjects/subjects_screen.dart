@@ -9,10 +9,12 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_metrics.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_fab.dart';
+import '../../core/widgets/circle_button.dart';
 import '../../core/widgets/illustration.dart';
 import '../../core/widgets/progress_ring.dart';
 import '../../data/db/database.dart';
 import 'widgets/subject_editor_sheet.dart';
+
 /// Derslerin listesi ve ilerleme durumu.
 class SubjectsScreen extends ConsumerWidget {
   const SubjectsScreen({super.key});
@@ -30,66 +32,72 @@ class SubjectsScreen extends ConsumerWidget {
         bottom: false,
         child: subjects.when(
           loading: () => const SizedBox.shrink(),
-          error: (error, stack) => Center(child: Text('Dersler okunamadı: $error')),
+          error: (error, stack) =>
+              Center(child: Text('Dersler okunamadı: $error')),
           data: (list) => list.isEmpty
               ? _EmptySubjects(onAdd: () => SubjectEditorSheet.show(context))
-              : ListView(
-            padding: const EdgeInsets.fromLTRB(Gap.page, Gap.xl, Gap.page, Gap.listBottom),
-            children: [
-              Text('Derslerin', style: text.headlineMedium),
-              const SizedBox(height: 6),
-              Text(
-                list.isEmpty
-                    ? 'Henüz ders eklemedin.'
-                    : '${list.length} ders · ${totals.values.fold(0, (a, b) => a + b)} konu',
-                style: text.bodySmall,
-              ),
-              const SizedBox(height: Gap.xxl),
-              for (final subject in list)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: AppCard(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 16,
-                    ),
-                    onTap: () => context.go(
-                      '${Routes.subjects}/${subject.id}',
-                      extra: subject.name,
-                    ),
-                    onLongPress: () => _showSubjectActions(context, ref, subject),
-                    child: Row(
-                      children: [
-                        ProgressRing(
-                          completed: completed[subject.id] ?? 0,
-                          total: totals[subject.id] ?? 0,
+              : CustomScrollView(
+                  slivers: [
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(
+                        Gap.page,
+                        Gap.xl,
+                        Gap.page,
+                        Gap.xxl,
+                      ),
+                      sliver: SliverToBoxAdapter(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Derslerin', style: text.headlineMedium),
+                            const SizedBox(height: 6),
+                            Text(
+                              '${list.length} ders · '
+                              '${totals.values.fold(0, (a, b) => a + b)} konu',
+                              style: text.bodySmall,
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: Gap.lg),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(subject.name, style: text.titleMedium),
-                              const SizedBox(height: 3),
-                              Text(
-                                '${completed[subject.id] ?? 0} / '
-                                '${totals[subject.id] ?? 0} konu bitti',
-                                style: text.bodySmall,
-                              ),
-                            ],
-                          ),
-                        ),
-                        const Icon(
-                          PhosphorIconsRegular.caretRight,
-                          size: IconSize.md,
-                          color: AppColors.textTertiary,
-                        ),
-                      ],
+                      ),
                     ),
-                  ),
+                    // İki sütunlu renkli ızgara. Liste hâlinde her ders aynı
+                    // beyaz kartın içinde bir satırdı ve dersin rengi yalnızca
+                    // sekiz piksellik bir noktada yaşıyordu. Renk artık kartın
+                    // kendisinde: öğrenci Matematik'i adını okumadan bulur.
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(
+                        Gap.page,
+                        0,
+                        Gap.page,
+                        Gap.listBottom,
+                      ),
+                      sliver: SliverGrid.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: Gap.md,
+                              crossAxisSpacing: Gap.md,
+                              childAspectRatio: 0.92,
+                            ),
+                        itemCount: list.length,
+                        itemBuilder: (context, index) {
+                          final subject = list[index];
+                          return SubjectCard(
+                            subject: subject,
+                            completed: completed[subject.id] ?? 0,
+                            total: totals[subject.id] ?? 0,
+                            onTap: () => context.go(
+                              '${Routes.subjects}/${subject.id}',
+                              extra: subject.name,
+                            ),
+                            onLongPress: () =>
+                                _showSubjectActions(context, ref, subject),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-            ],
-          ),
         ),
       ),
       floatingActionButton: AppFab(
@@ -104,7 +112,11 @@ class SubjectsScreen extends ConsumerWidget {
   /// Kaydırma hareketi yerine uzun basma: ders kartı bir listeye değil bir
   /// ekrana götürüyor, kaydırmalı silme burada yanlışlıkla tetiklenmeye çok
   /// açık olurdu.
-  void _showSubjectActions(BuildContext context, WidgetRef ref, Subject subject) {
+  void _showSubjectActions(
+    BuildContext context,
+    WidgetRef ref,
+    Subject subject,
+  ) {
     showModalBottomSheet<void>(
       context: context,
       useRootNavigator: true,
@@ -150,7 +162,9 @@ class SubjectsScreen extends ConsumerWidget {
       useRootNavigator: true,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.lg)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(Radii.lg),
+        ),
         title: Text('$name silinsin mi?'),
         content: const Text(
           'Bu dersin konuları, notları ve çalışma kayıtları da silinir. '
@@ -176,6 +190,126 @@ class SubjectsScreen extends ConsumerWidget {
       ),
     );
     return result ?? false;
+  }
+}
+
+/// Izgaradaki ders kartı.
+///
+/// Zemin dersin soluk tonu, başlık dersin mürekkep rengi: kart bir rozetin
+/// büyütülmüş hâli gibi okunuyor ve etiketlerle aynı çifti paylaşıyor. Sol
+/// üstte beyaz daire içinde ilerleme halkası (her derste kiremit; dersler
+/// arası karşılaştırma için tek renk), sağ altta koyu daire içinde ok:
+/// "buraya git" işareti. Sağ üstteki büyük soluk halka süs değil, kartın
+/// köşesini boş bırakmamak için; referans aldığımız düzendeki karalama
+/// dokusunun sessiz karşılığı.
+class SubjectCard extends StatelessWidget {
+  const SubjectCard({
+    required this.subject,
+    required this.completed,
+    required this.total,
+    required this.onTap,
+    this.onLongPress,
+    super.key,
+  });
+
+  final Subject subject;
+  final int completed;
+  final int total;
+  final VoidCallback onTap;
+  final VoidCallback? onLongPress;
+
+  @override
+  Widget build(BuildContext context) {
+    final colour = SubjectPalette.at(subject.colorIndex);
+    final text = Theme.of(context).textTheme;
+
+    return AppCard(
+      tint: colour.wash,
+      radius: Radii.lg,
+      padding: EdgeInsets.zero,
+      onTap: onTap,
+      onLongPress: onLongPress,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(Radii.lg),
+        child: Stack(
+          children: [
+            Positioned(
+              top: -36,
+              right: -36,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: colour.ink.withValues(alpha: 0.10),
+                    width: 22,
+                  ),
+                ),
+                child: const SizedBox.square(dimension: 128),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(Gap.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DecoratedBox(
+                    decoration: const BoxDecoration(
+                      color: AppColors.surface,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(3),
+                      child: ProgressRing(
+                        completed: completed,
+                        total: total,
+                        size: 42,
+                        color: colour.ink,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    subject.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.titleMedium?.copyWith(
+                      fontSize: 17,
+                      height: 1.15,
+                      color: colour.ink,
+                    ),
+                  ),
+                  const SizedBox(height: Gap.xs),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          '$completed / $total konu',
+                          style: text.bodySmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                      // Ok düğmesi kartın kendisine dokunmakla aynı işi yapar;
+                      // ayrı bir hedef değil, kartın dokunulabilir olduğunu
+                      // söyleyen işaret. Bu yüzden onTap yok — dokunuş kartın
+                      // InkWell'ine düşüyor.
+                      const IgnorePointer(
+                        child: CircleButton.dark(
+                          icon: PhosphorIconsRegular.arrowUpRight,
+                          onTap: null,
+                          size: 36,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

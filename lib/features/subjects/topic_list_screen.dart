@@ -245,7 +245,7 @@ class _StatusDot extends StatelessWidget {
           height: 18,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.accent, width: 2),
+            border: Border.all(color: AppColors.selection, width: 2),
           ),
           child: Center(
             child: Container(
@@ -253,7 +253,7 @@ class _StatusDot extends StatelessWidget {
               height: 8,
               decoration: const BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.accent,
+                color: AppColors.selection,
               ),
             ),
           ),

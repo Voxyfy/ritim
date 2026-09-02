@@ -10,6 +10,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_metrics.dart';
 import '../../core/widgets/app_fab.dart';
 import '../../core/widgets/illustration.dart';
+import '../../core/widgets/section_header.dart';
 import '../../data/db/database.dart';
 import '../plan/weekly_plan_sheet.dart';
 import '../subjects/widgets/log_session_sheet.dart';
@@ -18,6 +19,7 @@ import 'widgets/day_header.dart';
 import 'widgets/stats_section.dart';
 import 'widgets/task_detail_sheet.dart';
 import 'widgets/task_tile.dart';
+
 /// Uygulamanın ana ekranı: bugün yapılacaklar.
 ///
 /// Liste yalnızca bugünü ve gecikmişleri gösterir; ileri tarihli işler burada
@@ -42,6 +44,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
   Widget build(BuildContext context) {
     final tasks = ref.watch(todayTasksProvider);
     final db = ref.read(databaseProvider);
+    final streak = ref.watch(streakProvider).valueOrNull ?? 0;
 
     return Scaffold(
       body: SafeArea(
@@ -64,7 +67,11 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
                   sliver: SliverToBoxAdapter(
-                    child: DayHeader(total: items.length, done: done),
+                    child: DayHeader(
+                      total: items.length,
+                      done: done,
+                      streak: streak,
+                    ),
                   ),
                 ),
                 // Özet başlığın hemen altında: ana ekran önce "nerede
@@ -105,8 +112,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                         child: _DoneHeader(
                           count: finished.length,
                           open: _doneOpen,
-                          onTap: () =>
-                              setState(() => _doneOpen = !_doneOpen),
+                          onTap: () => setState(() => _doneOpen = !_doneOpen),
                         ),
                       ),
                     ),
@@ -121,7 +127,9 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 ],
                 // Yüzen düğmenin ve sekme çubuğunun son satırı kapatmaması
                 // için alt boşluk.
-                const SliverToBoxAdapter(child: SizedBox(height: Gap.listBottom)),
+                const SliverToBoxAdapter(
+                  child: SizedBox(height: Gap.listBottom),
+                ),
               ],
             );
           },
@@ -151,7 +159,9 @@ class _TaskSliver extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (items.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
+    if (items.isEmpty) {
+      return const SliverToBoxAdapter(child: SizedBox.shrink());
+    }
 
     return SliverPadding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
@@ -160,16 +170,8 @@ class _TaskSliver extends StatelessWidget {
         itemBuilder: (context, index) {
           if (title != null && index == 0) {
             return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Text(
-                title!.toUpperCase(),
-                style: const TextStyle(
-                  color: AppColors.textTertiary,
-                  fontSize: 12,
-                  letterSpacing: 1.2,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              padding: const EdgeInsets.fromLTRB(4, 4, 4, 12),
+              child: SectionHeader(title: title!, count: items.length),
             );
           }
 
@@ -276,28 +278,21 @@ class _DoneHeader extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
-      child: Row(
-        children: [
-          Text(
-            'BİTENLER · $count',
-            style: const TextStyle(
-              color: AppColors.textTertiary,
-              fontSize: 12,
-              letterSpacing: 1.2,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(width: Gap.sm),
-          AnimatedRotation(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        child: SectionHeader(
+          title: 'Bitenler',
+          count: count,
+          trailing: AnimatedRotation(
             turns: open ? 0.5 : 0,
             duration: Motion.base,
             child: const Icon(
               PhosphorIconsRegular.caretDown,
-              size: IconSize.sm,
-              color: AppColors.textTertiary,
+              size: IconSize.md,
+              color: AppColors.textSecondary,
             ),
           ),
-        ],
+        ),
       ),
     );
   }

@@ -9,6 +9,7 @@ import '../../../core/theme/app_metrics.dart';
 import '../../../core/widgets/app_card.dart';
 import '../../../data/db/database.dart';
 import 'weekly_summary_card.dart';
+
 /// Ana ekranın istatistik bölümü: ders dağılımı ve konu ilerlemesi.
 ///
 /// Haftalık özet kartı "ne kadar çalıştım" der; burası "neye çalıştım" ve
@@ -37,7 +38,8 @@ class _StatsSectionState extends ConsumerState<StatsSection> {
     final weekly = ref.watch(weeklySummaryProvider).valueOrNull;
     final streak = ref.watch(streakProvider).valueOrNull ?? 0;
 
-    final hasData = distribution.isNotEmpty ||
+    final hasData =
+        distribution.isNotEmpty ||
         (progress != null && progress.total > 0) ||
         (weekly != null && !weekly.isEmpty);
     if (!hasData) return const SizedBox.shrink();
@@ -92,22 +94,34 @@ class _StatsHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
 
+    // Beyaz kart, koyu daire içinde ikon. Seri sayısı günün başlığında;
+    // burada tekrar yazılmıyor.
     return AppCard(
       onTap: onTap,
-      padding: const EdgeInsets.fromLTRB(18, 14, 14, 14),
+      padding: const EdgeInsets.fromLTRB(12, 12, 16, 12),
       child: Row(
         children: [
-          const Icon(
-            PhosphorIconsRegular.chartBar,
-            size: IconSize.md,
-            color: AppColors.textSecondary,
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              color: AppColors.selection,
+              shape: BoxShape.circle,
+            ),
+            child: SizedBox.square(
+              dimension: 40,
+              child: Center(
+                child: Icon(
+                  PhosphorIconsRegular.chartBar,
+                  size: IconSize.md,
+                  color: AppColors.onSelection,
+                ),
+              ),
+            ),
           ),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Text(
-              'Bu hafta ${formatDuration(minutes)}'
-              '${streak > 0 ? ' · $streak günlük seri' : ''}',
-              style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+              'Bu hafta ${formatDuration(minutes)}',
+              style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
             ),
           ),
           AnimatedRotation(
@@ -116,7 +130,7 @@ class _StatsHeader extends StatelessWidget {
             child: const Icon(
               PhosphorIconsRegular.caretDown,
               size: IconSize.md,
-              color: AppColors.textTertiary,
+              color: AppColors.textPrimary,
             ),
           ),
         ],
@@ -143,8 +157,9 @@ class _SubjectDistributionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final shown = items.take(_maxRows).toList();
-    final restMinutes =
-        items.skip(_maxRows).fold(0, (sum, item) => sum + item.minutes);
+    final restMinutes = items
+        .skip(_maxRows)
+        .fold(0, (sum, item) => sum + item.minutes);
     final peak = shown.first.minutes;
 
     return AppCard(
@@ -240,7 +255,10 @@ class _Bar extends StatelessWidget {
                   height: 8,
                   // En kısa çubuk bile görünsün: sıfıra yakın bir değer
                   // çubuğu tamamen yok ediyordu.
-                  width: (constraints.maxWidth * value).clamp(6.0, double.infinity),
+                  width: (constraints.maxWidth * value).clamp(
+                    6.0,
+                    double.infinity,
+                  ),
                   decoration: BoxDecoration(
                     color: colour,
                     borderRadius: BorderRadius.circular(4),
@@ -304,12 +322,12 @@ class _ProgressCard extends StatelessWidget {
             runSpacing: 6,
             children: [
               _Legend(
-                color: AppColors.accent,
+                color: AppColors.selection,
                 label: 'Bitti',
                 value: progress.done,
               ),
               _Legend(
-                color: AppColors.accentSoft,
+                color: AppColors.selectionSoft,
                 label: 'Çalışılıyor',
                 value: progress.inProgress,
               ),
@@ -348,7 +366,7 @@ class _StackedBar extends StatelessWidget {
             if (progress.done > 0)
               Expanded(
                 flex: progress.done,
-                child: const ColoredBox(color: AppColors.accent),
+                child: const ColoredBox(color: AppColors.selection),
               ),
             if (progress.done > 0 && progress.inProgress > 0)
               const SizedBox(width: 2),
@@ -357,7 +375,7 @@ class _StackedBar extends StatelessWidget {
                 flex: progress.inProgress,
                 // Aynı ailenin soluk tonu: "çalışılıyor", "bitti"nin yolunda
                 // bir ara durum, ayrı bir kategori değil.
-                child: const ColoredBox(color: AppColors.accentSoft),
+                child: const ColoredBox(color: AppColors.selectionSoft),
               ),
             if (progress.notStarted > 0 &&
                 (progress.done > 0 || progress.inProgress > 0))
@@ -367,7 +385,8 @@ class _StackedBar extends StatelessWidget {
                 flex: progress.notStarted,
                 child: const ColoredBox(color: AppColors.progressTrack),
               ),
-            if (progress.total == 0) Expanded(flex: total, child: const SizedBox()),
+            if (progress.total == 0)
+              Expanded(flex: total, child: const SizedBox()),
           ],
         ),
       ),

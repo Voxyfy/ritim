@@ -22,7 +22,9 @@ abstract final class AppColors {
   static const surfaceMuted = Color(0xFFF2EDE4);
   static const border = Color(0xFFE8E1D6);
 
-  /// Birincil vurgu: kiremit.
+  /// Birincil vurgu: kiremit. **Yalnızca birincil eylem**: yüzen düğme ve
+  /// "Plan kur". 1.1'de ilerleme, rozet ve takvim yoğunluğundan çekildi;
+  /// bir ekranda tek yerde görünür.
   ///
   /// Önce mor denendi (Todoist'in kırmızısını ödünç almamak için) ama fildişi
   /// zeminde soğuk duruyordu, sayfanın geri kalanıyla aynı dili konuşmuyordu.
@@ -37,8 +39,9 @@ abstract final class AppColors {
   /// Yalnızca **tamamlandı** işareti için: onay daireleri ve konu durum
   /// noktası.
   ///
-  /// Renklerin işi bölüşüldü. Kiremit ilerlemeyi ve etkinliği anlatır
-  /// (halkalar, çubuklar, grafikler); yeşil yalnızca "bu bitti" der. Önce
+  /// Renklerin işi bölüşüldü. Sıcak siyah ([selection]) ilerlemeyi ve seçimi
+  /// anlatır (halkalar, çubuklar, takvim); kiremit yalnızca eylem; yeşil
+  /// yalnızca "bu bitti" der. Önce
   /// ikisi karışıktı: ders halkası kiremit, aynı veriyi gösteren yığılmış
   /// çubuk yeşildi ve aynı şeyin iki rengi vardı.
   ///
@@ -61,22 +64,31 @@ abstract final class AppColors {
   static const overdue = Color(0xFFC2185B);
   static const overdueSoft = Color(0xFFFCE4EC);
 
-  /// Kart kenarı: bir piksellik, sıcak zeminden bir ton koyu çizgi.
+  /// İnce ayraç çizgisi: yalnızca bir kartın **içindeki** satırları ayırır.
   ///
-  /// Kartlar önce gölgeyle yüzüyordu. Gölge sıcak ve davetkârdı ama her yüzey
-  /// biraz bulanıklaşıyor, liste hâlinde bakınca kenarlar birbirine karışıyordu.
-  /// Kesin bir çizgi hem daha sessiz hem daha okunaklı; gölge artık yalnızca
+  /// Kartların kendisi artık kenar çizgisi taşımıyor. 1.0'da bir piksellik
+  /// çizgiyle ayrılıyorlardı; 1.1'de kart zeminden yalnızca renk farkıyla
+  /// (beyaz ya da ders tonu) kalkıyor. Çizgi, geniş yarıçaplı yüzeylerde
+  /// köşede kırılıyor ve arayüzü "çerçeveli" gösteriyordu. Gölge de yalnızca
   /// **gerçekten yüzen** şeylerde (sekme çubuğu, yüzen düğme, alttan açılan
-  /// sayfa) kullanılıyor ve orada bir anlam taşıyor: "bu katman üstte".
+  /// sayfa): "bu katman üstte".
   static const hairline = Color(0xFFEAE3D8);
+
+  /// Seçili / gezinme rengi: sıcak siyah.
+  ///
+  /// Sekme çubuğunda seçili daire, hap seçicide seçili parça, takvimde bugün.
+  /// Önce bunlar da kiremitti ve vurgu rengi her ekranda üç dört yerde
+  /// görünüyordu; "bir ekranda tek yerde" kuralı fiilen bozuktu. Koyu seçim,
+  /// kiremidi yalnızca **eylem ve ilerlemeye** bırakıyor.
+  static const selection = textPrimary;
+  static const onSelection = Color(0xFFFFFFFF);
+
+  /// Seçimin/ilerlemenin soluk tonu: "çalışılıyor" dilimi, ara yoğunluk.
+  static const selectionSoft = Color(0xFFCFC8BC);
 
   /// Yalnızca yüzen katmanlar için. Kartlarda kullanılmaz.
   static const floatingShadow = <BoxShadow>[
-    BoxShadow(
-      color: Color(0x1F312A1F),
-      blurRadius: 28,
-      offset: Offset(0, 8),
-    ),
+    BoxShadow(color: Color(0x1F312A1F), blurRadius: 28, offset: Offset(0, 8)),
   ];
 }
 
@@ -113,19 +125,29 @@ abstract final class SubjectPalette {
   static const colors = <SubjectColor>[
     SubjectColor(Color(0xFF6B4EE8), Color(0xFFEDE8FF)), // mor      · Türkçe
     SubjectColor(Color(0xFF0E9F8E), Color(0xFFDFF5F1)), // turkuaz  · Matematik
-    SubjectColor(Color(0xFF2C7BE5), Color(0xFFE3EFFD)), // mavi     · Fen / Fizik
+    SubjectColor(
+      Color(0xFF2C7BE5),
+      Color(0xFFE3EFFD),
+    ), // mavi     · Fen / Fizik
     SubjectColor(Color(0xFFE0567F), Color(0xFFFCE7EE)), // mercan   · Tarih
     SubjectColor(Color(0xFFB8860B), Color(0xFFFAF0D8)), // hardal   · İngilizce
-    SubjectColor(Color(0xFF3F7A1E), Color(0xFFE7F2DC)), // yaprak   · Din Kültürü
+    SubjectColor(
+      Color(0xFF3F7A1E),
+      Color(0xFFE7F2DC),
+    ), // yaprak   · Din Kültürü
     SubjectColor(Color(0xFFE07B39), Color(0xFFFDEDE1)), // turuncu  · Geometri
     SubjectColor(Color(0xFF9B51E0), Color(0xFFF4E9FD)), // lila     · Kimya
     SubjectColor(Color(0xFF2E8B57), Color(0xFFE4F3EA)), // yeşil    · Biyoloji
     SubjectColor(Color(0xFF4557C7), Color(0xFFE7EAFB)), // çivit    · Coğrafya
-    SubjectColor(Color(0xFFB24C63), Color(0xFFF7E7EB)), // bordo    · Felsefe grubu
-    SubjectColor(Color(0xFF0F6FA8), Color(0xFFE1EFF7)), // petrol   · Vatandaşlık
+    SubjectColor(
+      Color(0xFFB24C63),
+      Color(0xFFF7E7EB),
+    ), // bordo    · Felsefe grubu
+    SubjectColor(
+      Color(0xFF0F6FA8),
+      Color(0xFFE1EFF7),
+    ), // petrol   · Vatandaşlık
   ];
-
-
 
   /// Güvenli erişim: ileride uzayan bir paletten yazılmış indeks, eski bir
   /// sürümde hata fırlatmak yerine başa sarar.

@@ -230,9 +230,22 @@ class _Row extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(Gap.lg),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Icon(icon, size: IconSize.md, color: colour),
+            DecoratedBox(
+              decoration: BoxDecoration(
+                color: colour == AppColors.overdue
+                    ? AppColors.overdueSoft
+                    : AppColors.surfaceMuted,
+                shape: BoxShape.circle,
+              ),
+              child: SizedBox.square(
+                dimension: 40,
+                child: Center(
+                  child: Icon(icon, size: IconSize.md, color: colour),
+                ),
+              ),
+            ),
             const SizedBox(width: Gap.md),
             Expanded(
               child: Column(

@@ -20,20 +20,25 @@ import '../theme/app_metrics.dart';
 /// kesin durumunu verir, yüzde ise **dersler arası karşılaştırmayı** mümkün
 /// kılar — 1/13 ile 3/22'yi kafadan kıyaslamak zor, %8 ile %14'ü değil.
 ///
-/// Halka her derste aynı renktedir (kiremit). Önce dersin rengindeydi ve liste,
-/// ilerleme karşılaştırması yapılamayan renkli bir tarağa dönüşüyordu; kimlik
-/// zaten halkanın yanındaki ders adında yazıyor.
+/// Renk [color] ile gelir. 1.0'da her derste kiremitti: kartlar beyazdı ve
+/// tek renk halka dersleri karşılaştırılabilir kılıyordu. 1.1'de kart zaten
+/// dersin renginde; kiremit halka orada üçüncü bir renk oluyordu.
 class ProgressRing extends StatelessWidget {
   const ProgressRing({
     required this.completed,
     required this.total,
     this.size = 48,
+    this.color = AppColors.selection,
     super.key,
   });
 
   final int completed;
   final int total;
   final double size;
+
+  /// Yay rengi. Varsayılan sıcak siyah; renkli ders kartında dersin
+  /// mürekkebi verilir — kartın zemini zaten kimliği taşıyor, halka ona uyar.
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +51,7 @@ class ProgressRing extends StatelessWidget {
         duration: Motion.slow,
         curve: Motion.curve,
         builder: (context, value, child) => CustomPaint(
-          painter: _RingPainter(ratio: value),
+          painter: _RingPainter(ratio: value, color: color),
           child: Center(
             child: Text(
               // Yüzde işareti sayıdan önce: Türkçe yazımda "%10" doğru,
@@ -72,9 +77,10 @@ class ProgressRing extends StatelessWidget {
 }
 
 class _RingPainter extends CustomPainter {
-  const _RingPainter({required this.ratio});
+  const _RingPainter({required this.ratio, required this.color});
 
   final double ratio;
+  final Color color;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -95,7 +101,7 @@ class _RingPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = stroke
       ..strokeCap = StrokeCap.round
-      ..color = AppColors.accent;
+      ..color = color;
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       -math.pi / 2,
@@ -106,5 +112,6 @@ class _RingPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_RingPainter old) => old.ratio != ratio;
+  bool shouldRepaint(_RingPainter old) =>
+      old.ratio != ratio || old.color != color;
 }

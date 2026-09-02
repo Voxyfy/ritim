@@ -49,7 +49,7 @@ class _ReminderDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Radii.lg)),
       title: Row(
         children: [
-          const Icon(PhosphorIconsFill.bell, color: AppColors.accent, size: 22),
+          const Icon(PhosphorIconsFill.bell, color: AppColors.selection, size: 22),
           const SizedBox(width: Gap.md),
           Expanded(
             child: Text('Tekrar günü haber verelim mi?', style: text.titleMedium),

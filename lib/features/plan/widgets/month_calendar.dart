@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../core/date_extensions.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_metrics.dart';
+import '../../../core/widgets/app_card.dart';
 
 /// Ay görünümü.
 ///
@@ -11,9 +13,10 @@ import '../../../core/theme/app_metrics.dart';
 /// sorusuna. İkisi farklı sorular, bu yüzden liste kaldırılmadı — takvim
 /// onun üstünde bir katman.
 ///
-/// Günler yoğunluğa göre boyanıyor, sayı yazılmıyor: otuz hücreye sayı
-/// sığdırmak ızgarayı okunmaz yapıyor ve zaten aranan şey tek bir günün
-/// sayısı değil, ayın dağılımı.
+/// Hücreler daire. Boş günler ince çizgili beyaz, planlı günler sıcak
+/// siyahın soluk tonları, en yoğun günler koyu, seçili gün tam koyu daire. Bugün seçili değilse ince koyu halka: "sen
+/// buradasın" işareti, ama seçimle karışmayacak kadar hafif. Ayın dışındaki
+/// boş hücreler çizilmiyor; ızgara ayın ilk gününden başlıyor.
 class MonthCalendar extends StatelessWidget {
   const MonthCalendar({
     required this.month,
@@ -42,53 +45,87 @@ class MonthCalendar extends StatelessWidget {
     final leading = first.weekday - DateTime.monday;
     final peak = countsByDay.values.fold(0, (a, b) => a > b ? a : b);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            for (final label in _weekdayLabels)
-              Expanded(
-                child: Center(
-                  child: Text(
-                    label,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textTertiary,
+    return AppCard(
+      radius: Radii.lg,
+      padding: const EdgeInsets.fromLTRB(Gap.lg, Gap.lg, Gap.lg, Gap.xl),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const DecoratedBox(
+                decoration: BoxDecoration(
+                  color: AppColors.surfaceMuted,
+                  shape: BoxShape.circle,
+                ),
+                child: SizedBox.square(
+                  dimension: 40,
+                  child: Center(
+                    child: Icon(
+                      PhosphorIconsRegular.calendarDots,
+                      size: IconSize.md,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ),
               ),
-          ],
-        ),
-        const SizedBox(height: Gap.sm),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          padding: EdgeInsets.zero,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 7,
-            mainAxisSpacing: Gap.xs,
-            crossAxisSpacing: Gap.xs,
+              const SizedBox(width: Gap.md),
+              Text(
+                DateFormat('MMMM yyyy', 'tr_TR').format(month),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ],
           ),
-          itemCount: leading + daysInMonth,
-          itemBuilder: (context, index) {
-            if (index < leading) return const SizedBox.shrink();
+          const SizedBox(height: Gap.xl),
+          Row(
+            children: [
+              for (final label in _weekdayLabels)
+                Expanded(
+                  child: Center(
+                    child: Text(
+                      label,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: Gap.md),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7,
+              mainAxisSpacing: Gap.sm,
+              crossAxisSpacing: Gap.sm,
+            ),
+            itemCount: leading + daysInMonth,
+            itemBuilder: (context, index) {
+              if (index < leading) return const SizedBox.shrink();
 
-            final day = DateTime(month.year, month.month, index - leading + 1);
+              final day = DateTime(
+                month.year,
+                month.month,
+                index - leading + 1,
+              );
 
-            return _DayCell(
-              day: day,
-              count: countsByDay[day] ?? 0,
-              peak: peak,
-              isToday: day.isSameDay(today()),
-              isSelected: day.isSameDay(selected),
-              onTap: () => onSelect(day),
-            );
-          },
-        ),
-      ],
+              return _DayCell(
+                day: day,
+                count: countsByDay[day] ?? 0,
+                peak: peak,
+                isToday: day.isSameDay(today()),
+                isSelected: day.isSameDay(selected),
+                onTap: () => onSelect(day),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
@@ -122,12 +159,17 @@ class _DayCell extends StatelessWidget {
       _ => 1,
     };
 
-    final fill = switch (level) {
-      3 => AppColors.accent,
-      2 => AppColors.accent.withValues(alpha: 0.55),
-      1 => AppColors.accentSoft,
-      _ => Colors.transparent,
-    };
+    // Yoğunluk sıcak siyahın tonlarıyla, kiremitle değil: kiremit eylem
+    // rengi, takvimde "burası dolu" demek onun işi değil.
+    final fill = isSelected
+        ? AppColors.selection
+        : switch (level) {
+            3 => AppColors.selection.withValues(alpha: 0.72),
+            2 => AppColors.selectionSoft,
+            1 => AppColors.surfaceMuted,
+            _ => AppColors.surface,
+          };
+    final onDark = isSelected || level == 3;
 
     return GestureDetector(
       onTap: onTap,
@@ -135,24 +177,23 @@ class _DayCell extends StatelessWidget {
         duration: Motion.quick,
         decoration: BoxDecoration(
           color: fill,
-          borderRadius: BorderRadius.circular(Radii.sm),
-          border: Border.all(
-            color: isSelected
-                ? AppColors.textPrimary
-                : isToday
-                    ? AppColors.accent
-                    : AppColors.hairline,
-            width: isSelected || isToday ? 1.5 : 1,
-          ),
+          shape: BoxShape.circle,
+          border: isToday && !isSelected
+              ? Border.all(color: AppColors.selection, width: 1.5)
+              : level == 0 && !isSelected
+                  ? Border.all(color: AppColors.hairline)
+                  : null,
         ),
         alignment: Alignment.center,
         child: Text(
           DateFormat('d').format(day),
           style: TextStyle(
             fontSize: 13,
-            fontWeight: isToday ? FontWeight.w800 : FontWeight.w600,
-            // Koyu dolgunun üstünde koyu yazı okunmuyor; eşik seviye 2.
-            color: level >= 2 ? AppColors.onAccent : AppColors.textPrimary,
+            fontWeight: isToday || isSelected
+                ? FontWeight.w800
+                : FontWeight.w600,
+            fontFeatures: const [FontFeature.tabularFigures()],
+            color: onDark ? AppColors.onSelection : AppColors.textPrimary,
           ),
         ),
       ),

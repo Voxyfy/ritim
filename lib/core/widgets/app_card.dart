@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 import '../theme/app_metrics.dart';
-/// Uygulamanın tek kartı: fildişi zemin üzerinde beyaz bir yüzey, bir
-/// piksellik sıcak bir çizgiyle ayrılmış.
+
+/// Uygulamanın tek kartı: fildişi zemin üzerinde kenarsız, geniş yarıçaplı bir
+/// yüzey.
 ///
-/// Önce gölgeyle yüzüyordu. Gölge davetkârdı ama liste hâlinde bakınca her
-/// kartın kenarı bulanıklaşıyor, ekran yumuşak lekeler topluluğuna dönüyordu.
-/// Kesin çizgi hem daha sessiz hem daha okunaklı. Gölge artık yalnızca gerçek
+/// 1.0'da kartlar bir piksellik sıcak bir çizgiyle ayrılıyordu. Çizgi, geniş
+/// yarıçapla birlikte köşelerde kırılmaya başladı ve her kart çerçeveli bir
+/// kutu gibi durdu. Şimdi kart zeminden yalnızca renk farkıyla kalkıyor:
+/// varsayılan beyaz, istenirse [tint] ile bir ders tonu. Gölge yalnızca gerçek
 /// anlamda üstte duran katmanlarda — sekme çubuğu, yüzen düğme, alttan açılan
 /// sayfa — ve orada bir bilgi taşıyor.
 ///
-/// Ritim'de karta benzeyen her şey buradan geçer; yarıçapın, payın ve kenarın
-/// bütün ekranlarda aynı kalmasının sebebi budur.
+/// Ritim'de karta benzeyen her şey buradan geçer; yarıçapın ve payın bütün
+/// ekranlarda aynı kalmasının sebebi budur.
 class AppCard extends StatelessWidget {
   const AppCard({
     required this.child,
@@ -20,6 +22,8 @@ class AppCard extends StatelessWidget {
     this.onLongPress,
     this.padding = const EdgeInsets.all(Gap.card),
     this.selected = false,
+    this.tint,
+    this.radius = Radii.md,
     super.key,
   });
 
@@ -34,26 +38,33 @@ class AppCard extends StatelessWidget {
   /// içindeki ders renkleriyle çatışır.
   final bool selected;
 
+  /// Kart zemini. Boşsa beyaz. Ders kartları dersin soluk tonunu, vurgu
+  /// kartları soluk kiremidi verir; renk kartın **kendisinde**, içindeki
+  /// rozette değil.
+  final Color? tint;
+
+  /// Köşe yarıçapı. Varsayılan kart; ızgara kartları ve takvim [Radii.lg].
+  final double radius;
+
   @override
   Widget build(BuildContext context) {
-    final radius = BorderRadius.circular(Radii.md);
+    final shape = BorderRadius.circular(radius);
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: radius,
-        border: Border.all(
-          color: selected ? AppColors.accent : AppColors.hairline,
-          width: selected ? 1.5 : 1,
-        ),
+        color: tint ?? AppColors.surface,
+        borderRadius: shape,
+        border: selected
+            ? Border.all(color: AppColors.selection, width: 1.5)
+            : null,
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: radius,
+        borderRadius: shape,
         child: InkWell(
           onTap: onTap,
           onLongPress: onLongPress,
-          borderRadius: radius,
+          borderRadius: shape,
           child: Padding(padding: padding, child: child),
         ),
       ),

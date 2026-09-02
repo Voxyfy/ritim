@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+
 /// Boşluk ölçeği — 4 piksellik ızgara.
 ///
 /// Her ekranın kendi payını uydurması, aynı işi yapan iki kartın farklı
@@ -38,18 +39,22 @@ abstract final class Gap {
 }
 
 /// Köşe yarıçapı. Üç değer ve bir tam yuvarlak; fazlası tutarsızlık.
+///
+/// 1.1 ile hepsi büyüdü. Önceki değerler (12/18/28) kartları "kutu" gibi
+/// gösteriyordu; geniş yarıçap ve kenarsız yüzey, kartın zeminden renk
+/// farkıyla ayrılmasını sağlıyor ve sayfa tek parça bir yüzey gibi okunuyor.
 abstract final class Radii {
   /// Veri çubukları gibi ince yüzeyler.
   static const xs = 4.0;
 
   /// Rozet, gün seçici, küçük yüzeyler.
-  static const sm = 12.0;
+  static const sm = 14.0;
 
   /// Kart, düğme, giriş alanı.
-  static const md = 18.0;
+  static const md = 24.0;
 
-  /// Alttan açılan sayfalar.
-  static const lg = 28.0;
+  /// Büyük kartlar (takvim, ders kartı) ve alttan açılan sayfalar.
+  static const lg = 32.0;
 
   static const full = 999.0;
 }

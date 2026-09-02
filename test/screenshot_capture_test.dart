@@ -110,7 +110,13 @@ void main() {
         );
 
         Future<void> sekme(String etiket) async {
-          await tester.tap(find.text(etiket));
+          await tester.tap(
+            find.byKey(
+              Key(
+                'sekme-${const {'Bugün': 'bugun', 'Plan': 'plan', 'Dersler': 'dersler', 'Deneme': 'deneme', 'Ayarlar': 'ayarlar'}[etiket]!}',
+              ),
+            ),
+          );
           await tester.pumpAndSettle();
         }
 
@@ -124,6 +130,13 @@ void main() {
 
         await sekme('Plan');
         await cek('03-plan');
+        // Takvim görünümü 1.1'in en görünür ekranı: daire hücreler, koyu
+        // seçim. Liste kalıyor, takvim ayrı kare.
+        await tester.tap(find.byKey(const Key('plan-takvim')));
+        await tester.pumpAndSettle();
+        await cek('07-plan-takvim');
+        await tester.tap(find.byKey(const Key('plan-liste')));
+        await tester.pumpAndSettle();
         await sekme('Dersler');
         await cek('04-dersler');
         await sekme('Deneme');

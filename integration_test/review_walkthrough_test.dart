@@ -100,8 +100,8 @@ void main() {
     //    Uygulamanın çekirdek akışı bu: konuya çalışılır, kaydedilir,
     //    tekrar kendiliğinden planlanır.
     raporla('dersler sekmesi aranıyor');
-    if (find.text('Dersler').evaluate().isNotEmpty) {
-      await dokun(tester, find.text('Dersler'), 2200);
+    if (find.byKey(const Key('sekme-dersler')).evaluate().isNotEmpty) {
+      await dokun(tester, find.byKey(const Key('sekme-dersler')), 2200);
 
       raporla('matematik aranıyor');
       if (find.text('Matematik').evaluate().isNotEmpty) {
@@ -128,8 +128,8 @@ void main() {
     }
 
     // 7. Plan sekmesi ve plan kurma sayfası.
-    if (find.text('Plan').evaluate().isNotEmpty) {
-      await dokun(tester, find.text('Plan'), 2400);
+    if (find.byKey(const Key('sekme-plan')).evaluate().isNotEmpty) {
+      await dokun(tester, find.byKey(const Key('sekme-plan')), 2400);
       if (find.text('Plan kur').evaluate().isNotEmpty) {
         await dokun(tester, find.text('Plan kur'), 3000);
       }

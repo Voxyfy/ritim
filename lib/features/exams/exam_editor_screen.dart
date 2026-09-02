@@ -243,7 +243,7 @@ class _DateRow extends StatelessWidget {
             DateFormat('d MMMM yyyy', 'tr_TR').format(date),
             style: const TextStyle(
               fontWeight: FontWeight.w600,
-              color: AppColors.accent,
+              color: AppColors.selection,
             ),
           ),
         ],
@@ -272,10 +272,10 @@ class _PenaltyChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: Gap.md),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: selected ? AppColors.accentSoft : AppColors.surface,
+          color: selected ? AppColors.selection : AppColors.surface,
           borderRadius: BorderRadius.circular(Radii.sm),
           border: Border.all(
-            color: selected ? AppColors.accent : AppColors.hairline,
+            color: selected ? AppColors.selection : AppColors.hairline,
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -286,7 +286,7 @@ class _PenaltyChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 13.5,
             fontWeight: FontWeight.w700,
-            color: selected ? AppColors.accent : AppColors.textSecondary,
+            color: selected ? AppColors.onSelection : AppColors.textSecondary,
           ),
         ),
       ),

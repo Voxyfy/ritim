@@ -107,12 +107,31 @@ class _ExamCard extends ConsumerWidget {
               ],
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(_formatNet(net), style: text.displaySmall),
-              Text('net', style: text.labelSmall),
-            ],
+          // Net koyu bir hapta: kartın tek sayısı bu ve göz önce ona gitsin.
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: const BoxDecoration(
+              color: AppColors.selection,
+              borderRadius: BorderRadius.all(Radius.circular(Radii.full)),
+            ),
+            child: Text.rich(
+              TextSpan(
+                text: _formatNet(net),
+                style: text.titleMedium?.copyWith(
+                  color: AppColors.onSelection,
+                  fontSize: 17,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+                children: [
+                  TextSpan(
+                    text: ' net',
+                    style: text.labelSmall?.copyWith(
+                      color: AppColors.onSelection.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

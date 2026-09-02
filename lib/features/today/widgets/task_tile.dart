@@ -46,7 +46,7 @@ class TaskTile extends StatelessWidget {
         alignment: Alignment.centerLeft,
         icon: PhosphorIconsRegular.clock,
         label: 'Ertele',
-        color: AppColors.accent,
+        color: AppColors.selection,
       ),
       secondaryBackground: const _SwipeAction(
         alignment: Alignment.centerRight,
@@ -111,12 +111,15 @@ class TaskTile extends StatelessWidget {
                         // Görevin nereden geldiği listede de yazıyor: aynı
                         // konu adı hem tekrar hem plan olarak çıkabiliyor ve
                         // öğrenci hangisi olduğunu anlayamıyordu.
+                        // Kaynak etiketleri (tekrar/plan/not) tek nötr tonda:
+                        // kimlik ders etiketinde, uyarı ahudududa; kaynağın
+                        // kendi rengi olması üçüncü bir sistem kuruyordu.
                         if (item.task.source == TaskSource.review)
                           const _Tag(
                             label: 'tekrar',
                             colour: SubjectColor(
-                              AppColors.accent,
-                              AppColors.accentSoft,
+                              AppColors.textSecondary,
+                              AppColors.surfaceMuted,
                             ),
                           ),
                         if (item.task.source == TaskSource.plan)

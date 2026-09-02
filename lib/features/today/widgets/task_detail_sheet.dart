@@ -239,10 +239,10 @@ class _DayChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: selected ? AppColors.accentSoft : AppColors.surface,
+          color: selected ? AppColors.selection : AppColors.surface,
           borderRadius: BorderRadius.circular(Radii.sm),
           border: Border.all(
-            color: selected ? AppColors.accent : AppColors.border,
+            color: selected ? AppColors.selection : AppColors.border,
             width: selected ? 1.5 : 1,
           ),
         ),
@@ -251,7 +251,7 @@ class _DayChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: selected ? AppColors.accent : AppColors.textSecondary,
+            color: selected ? AppColors.onSelection : AppColors.textSecondary,
           ),
         ),
       ),

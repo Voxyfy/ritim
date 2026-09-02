@@ -160,8 +160,10 @@ Tekrar günü akşamı tek bir hatırlatma. Saat seçilebilir (varsayılan 19:00
 ## Tasarım ilkeleri
 
 - **Çevrimdışı öncelikli, hesapsız.** Sunucu yok, kayıt yok, veri toplama yok. Her şey cihazda kalır.
-- **Sıcak ve açık arayüz.** Kâğıt hissi veren fildişi zemin, üzerinde yüzen beyaz kartlar, geniş köşe yarıçapı ve bol boşluk. Arayüzün samimiyeti renkten değil, yarıçap ve boşluktan gelir.
-- **Tek vurgu rengi.** Kiremit (`AppColors.accent`) eylem rengidir; ilerleme ve seri için ayrı bir yeşil dolgu vardır ve o renk asla metinde kullanılmaz. Vurgu rengi bir ekranda birden fazla yerde görünüyorsa anlamını yitirmiştir.
+- **Sıcak ve açık arayüz.** Kâğıt hissi veren fildişi zemin, üzerinde kenarsız beyaz kartlar, geniş köşe yarıçapı (24/32) ve bol boşluk. Kartlar zeminden çizgiyle değil renk farkıyla ayrılır; gölge yalnızca gerçekten yüzen katmanlarda (sekme çubuğu, yüzen düğme). Arayüzün samimiyeti renkten değil, yarıçap ve boşluktan gelir.
+- **Renk kartın kendisinde.** Ders kartları dersin soluk tonuyla dolu, başlığı mürekkep renginde; renk bir noktada değil yüzeyde yaşar. 1.0'da her ders aynı beyaz kartın içinde bir satırdı.
+- **Dört renk ailesi, dördünün de tek işi var.** Fildişi zemin; ders renkleri kimlik (etiket, kart, çubuk); sıcak siyah seçim ve ilerleme (seçili sekme, hap seçici, takvim yoğunluğu, ilerleme çubuğu ve halkası, kaynak rozetleri nötr gri); kiremit **yalnızca birincil eylem** (yüzen düğme, "Plan kur"). Yeşil yalnızca "bitti" işaretidir, ahududu yalnızca gecikme. Vurgu rengi bir ekranda tek yerde görünür; 1.0'da kiremit hem ilerlemeyi hem "tekrar" rozetini hem takvim yoğunluğunu boyuyordu ve anlamını yitirmişti.
+- **Sekmeler yalnızca ikon.** Yüzen beyaz hap, seçili sekme kayan koyu daire. Adlar erişilebilirlik ağacında durur; testler sekmeyi `Key('sekme-plan')` gibi anahtarlarla bulur.
 - **Ders renkleri etiket gibidir.** Her ders koyu bir mürekkep ve soluk bir zemin çiftine sahiptir (`SubjectPalette`); rozetler bu çiftle çizilir, opaklıkla değil.
 - **Uygulama dürter, azarlamaz.** Geciken iş alarm kırmızısı değil yumuşak mercandır.
 - **Şablon müfredat değildir.** Şablon uygulamak sıradan kullanıcı satırları yazar; hepsi silinebilir, düzenlenebilir.
@@ -292,7 +294,7 @@ Veritabanı testleri bellek içi SQLite kullanır, cihaz gerekmez. Kapsam:
 | `onboarding_flow_test.dart` | Kurulum akışı ve yönlendirme (widget testi) |
 | `unresponsive_button_test.dart` | Ad boşken kaydetme düğmelerinin sessiz kalmaması — 1.0 (3) reddinin sebebi (widget testi) |
 | `format_test.dart` | Süre ve gecikme biçimlendirme (`1 sa 20 dk`, `3 gün gecikti`) |
-| `screenshot_capture_test.dart` | Test değil, **çekim aracı** — bkz. [Ekran görüntüleri](#ekran-görüntüleri). Olağan koşuda atlanır. |
+| `screenshot_capture_test.dart` | Test değil, **çekim aracı** (7 kare) — bkz. [Ekran görüntüleri](#ekran-görüntüleri). Olağan koşuda atlanır. |
 
 `integration_test/exam_save_test.dart` App Review'un iPad'de bildirdiği hatayı
 gerçek simülatörde birebir tekrar eder; `flutter test` koşusuna dahil değildir:
@@ -354,7 +356,7 @@ gönderme süreci tek dosyada: [`docs/app-store.md`](docs/app-store.md).
 Sürüm numarası `pubspec.yaml`'daki tek satırdan geliyor:
 
 ```
-version: 1.0.0+4
+version: 1.1.0+5
         └─┬─┘ └┬┘
           │    └── build numarası  → CFBundleVersion
           └────── pazarlama sürümü → CFBundleShortVersionString
@@ -410,6 +412,7 @@ Sayfaların kaynağı `docs/` klasöründedir ve GitHub Pages ile yayınlanır.
 | ✅ | App Store ekran görüntüleri (`screenshots/`) |
 | ✅ | TestFlight'a ilk yükleme |
 | ✅ | App Store'da yayın — 1.0.0, 2 Eylül 2026 |
+| ✅ | 1.1.0 görsel yenileme: kenarsız kartlar, renkli ders ızgarası, daire hücreli takvim, ikon sekmeler |
 | 🔜 | Açılış ekranı (hâlâ Flutter'ın varsayılan placeholder'ı) |
 | 🔜 | Android yayını |
 | 💭 | Yedekleme / dışa aktarma |

@@ -48,6 +48,7 @@ Yükleme yaparken klasör adıyla yuva adı birebir eşleşmeli.
 | `04-dersler` | Derslerin | Her ders, her konu tek yerde. |
 | `05-deneme` | Denemelerin | Netin nereye gidiyor? |
 | `06-deneme-analiz` | Deneme analizi | Hangi ders seni düşürdü, konu konu gör. |
+| `07-plan-takvim` | Plan · takvim | Ayın hangi günü dolu, hangisi boş: bir bakışta. |
 
 ## Yüklerken
 
