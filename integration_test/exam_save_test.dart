@@ -53,8 +53,8 @@ void main() {
       final devam = find.widgetWithText(FilledButton, 'Devam et');
       if (devam.evaluate().isNotEmpty) await dokun(tester, devam, 1500);
 
-      if (find.text('Atla').evaluate().isNotEmpty) {
-        await dokun(tester, find.text('Atla'), 1200);
+      if (find.text('Başla').evaluate().isNotEmpty) {
+        await dokun(tester, find.text('Başla'), 1200);
       }
     }
 
@@ -64,10 +64,10 @@ void main() {
     expect(find.text('Yeni deneme'), findsOneWidget);
 
     // İncelemecinin yaptığı: ada hiç dokunmadan sonuçları gir.
-    await tester.enterText(find.widgetWithText(TextField, 'Doğru').first, '2');
-    await bekle(tester, 300);
-    await tester.enterText(find.widgetWithText(TextField, 'Yanlış').first, '1');
-    await bekle(tester, 300);
+    // Sayılar ekrandaki tuş takımından; odak açılışta ilk dersin doğrusunda.
+    await dokun(tester, find.byKey(const Key('tus-2')), 300);
+    await dokun(tester, find.text('Yanlış').first, 300);
+    await dokun(tester, find.byKey(const Key('tus-1')), 300);
 
     // Ve Kaydet'e bas. Eskiden burada hiçbir şey olmuyordu.
     await dokun(tester, find.widgetWithText(TextButton, 'Kaydet'), 2000);

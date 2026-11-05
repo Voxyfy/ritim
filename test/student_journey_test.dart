@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:ritim/core/date_extensions.dart';
 import 'package:ritim/core/providers.dart';
 import 'package:ritim/data/db/database.dart';
 import 'package:ritim/data/db/tables.dart';
@@ -120,49 +119,15 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Devam et'));
     await tester.pumpAndSettle();
 
-    // 3. Tanıtım: üç adım, her adımda çıkış var.
-    expect(find.text('Konularını takip et'), findsOneWidget);
-    expect(find.text('Atla'), findsOneWidget);
-    await tester.tap(find.text('Devam'));
-    await tester.pumpAndSettle();
-    expect(find.text('Çalıştıkça kaydet'), findsOneWidget);
-    await tester.tap(find.text('Devam'));
-    await tester.pumpAndSettle();
-    expect(find.text('Tekrarı Ritim planlasın'), findsOneWidget);
-    await tester.tap(find.text('Hadi başlayalım'));
+    // 3. Tanıtım: tek ekran, tek düğme.
+    expect(find.text('Daireye dokun, süreyi seç'), findsOneWidget);
+    expect(find.text('Ritim böyle çalışır'), findsOneWidget);
+    await tester.tap(find.text('Başla'));
     await tester.pumpAndSettle();
 
-    // 4. Bugün ekranı boş. Boş ekran çıkmaz sokak olmamalı: buradan devam
-    //    edecek görünür bir eylem olmalı.
-    expect(find.text('Bugün için bir şey planlamadın'), findsOneWidget);
-    expect(
-      find.widgetWithText(FilledButton, 'Haftalık plan kur'),
-      findsOneWidget,
-    );
-
-    // 5. Öğrenci haftalık plan kuruyor.
-    await tester.tap(find.widgetWithText(FilledButton, 'Haftalık plan kur'));
-    await tester.pumpAndSettle();
-    expect(find.text('Haftalık plan'), findsOneWidget);
-
-    // Varsayılan günler hafta içi. Test hafta sonu koşarsa plan bugüne hiçbir
-    // iş düşürmez ve devamındaki adımlar boşa çıkar; bugünü de seçiyoruz.
-    const gunEtiketleri = {
-      DateTime.monday: 'Pzt',
-      DateTime.tuesday: 'Sal',
-      DateTime.wednesday: 'Çar',
-      DateTime.thursday: 'Per',
-      DateTime.friday: 'Cum',
-      DateTime.saturday: 'Cmt',
-      DateTime.sunday: 'Paz',
-    };
-    if (today().weekday >= DateTime.saturday) {
-      await tester.tap(find.text(gunEtiketleri[today().weekday]!));
-      await tester.pumpAndSettle();
-    }
-
-    await tester.tap(find.widgetWithText(FilledButton, 'Planı kur'));
-    await tester.pumpAndSettle();
+    // 4-5. Bugün ekranı boş gelmiyor: şablonla birlikte haftalık plan
+    //      kendiliğinden kuruldu, öğrenci ilk ekranda yapacak işini görüyor.
+    expect(find.text('Bugün için bir şey planlamadın'), findsNothing);
 
     // Plan görevleri yazıldı mı?
     final planTasks = await (db.select(
@@ -226,20 +191,27 @@ void main() {
     // 13. Bugün listesinde görevin nereden geldiği yazıyor mu? Aynı konu adı
     //     hem tekrar hem plan olarak çıkabiliyor.
     await goToTab(tester, 'Bugün');
-    expect(find.text('plan'), findsWidgets);
+    expect(find.textContaining('plan', findRichText: true), findsWidgets);
 
-    // 14. Listedeki konuya bağlı bir işi işaretlemek "Çalıştım" sayfasını
-    //     açmalı: öğrenci çalışıp işaretliyor, uygulama bunu çalışma
-    //     saymazsa tekrar hiç planlanmıyor.
+    // 14. Listedeki konuya bağlı bir işi işaretlemek çalışma sayılmalı:
+    //     öğrenci çalışıp işaretliyor, uygulama bunu çalışma saymazsa tekrar
+    //     hiç planlanmıyor. Daire dakika rozetlerini açar, rozet tek
+    //     dokunuşla kaydeder.
     final oncekiKayit = (await db.select(db.studySessions).get()).length;
     final bugunkuPlan = (await db.select(db.tasks).get())
         .where((t) => t.source == TaskSource.plan && !t.done)
         .first;
-    await tester.tap(find.byKey(ValueKey('gorev-onay-${bugunkuPlan.id}')));
+    final daire = find.byKey(ValueKey('gorev-onay-${bugunkuPlan.id}'));
+    await tester.ensureVisible(daire);
     await tester.pumpAndSettle();
-    expect(find.text('Ne kadar çalıştın?'), findsOneWidget);
+    await tester.tap(daire);
+    await tester.pumpAndSettle();
+    expect(find.text('Ne kadar çalıştın?'), findsNothing);
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Kaydet'));
+    final rozet = find.byKey(ValueKey('hizli-kayit-${bugunkuPlan.id}-30'));
+    await tester.ensureVisible(rozet);
+    await tester.pumpAndSettle();
+    await tester.tap(rozet);
     await tester.pumpAndSettle();
 
     expect(
@@ -247,6 +219,34 @@ void main() {
       oncekiKayit + 1,
       reason: 'listeden tamamlamak çalışma kaydı üretmedi',
     );
+    final bekleyenTekrar = (await db.select(db.tasks).get()).where(
+      (t) =>
+          t.source == TaskSource.review &&
+          !t.done &&
+          t.topicId == bugunkuPlan.topicId,
+    );
+    expect(bekleyenTekrar, hasLength(1), reason: 'tekrar planlanmadı');
+    expect(find.text('30 dk kaydedildi'), findsOneWidget);
+
+    // Yanlış rozet ucuz olmalı: "Geri al" kaydı da görevi de geri getirir.
+    await tester.tap(find.text('Geri al'));
+    await tester.pumpAndSettle();
+    expect((await db.select(db.studySessions).get()).length, oncekiKayit);
+
+    // "Ayrıntı" tam kayıt sayfasını açar; soru ve not isteyen oradan girer.
+    await tester.ensureVisible(daire);
+    await tester.pumpAndSettle();
+    await tester.tap(daire);
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Ayrıntı'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Ayrıntı'));
+    await tester.pumpAndSettle();
+    expect(find.text('Ne kadar çalıştın?'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Kaydet'));
+    await tester.pumpAndSettle();
+    expect((await db.select(db.studySessions).get()).length, oncekiKayit + 1);
 
     await disposeApp(tester);
   });
@@ -262,7 +262,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(FilledButton, 'Devam et'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Atla'));
+    await tester.tap(find.text('Başla'));
     await tester.pumpAndSettle();
 
     // Dersler sekmesi bomboş; buradan çıkış yolu görünmeli, yoksa uygulama

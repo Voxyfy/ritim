@@ -6,10 +6,12 @@ import '../data/db/database.dart';
 import '../features/exams/exam_detail_screen.dart';
 import '../features/exams/exam_editor_screen.dart';
 import '../features/exams/exam_list_screen.dart';
+import '../features/focus/focus_screen.dart';
 import '../features/onboarding/intro_tour_screen.dart';
 import '../features/onboarding/template_picker_screen.dart';
 import '../features/onboarding/welcome_screen.dart';
 import '../features/plan/plan_screen.dart';
+import '../features/pro/paywall_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/shell/app_shell.dart';
 import '../features/shell/branch_switcher.dart';
@@ -17,6 +19,7 @@ import '../features/subjects/subjects_screen.dart';
 import '../features/subjects/topic_detail_screen.dart';
 import '../features/subjects/topic_list_screen.dart';
 import '../features/today/today_screen.dart';
+import 'pro.dart';
 import 'providers.dart';
 abstract final class Routes {
   static const splash = '/';
@@ -28,6 +31,8 @@ abstract final class Routes {
   static const subjects = '/dersler';
   static const settings = '/ayarlar';
   static const exams = '/denemeler';
+  static const pro = '/pro';
+  static const focus = '/odak';
 }
 
 /// Kullanıcının kurulum akışında nerede olduğu; canlı değer.
@@ -53,14 +58,38 @@ final routerProvider = Provider<GoRouter>((ref) {
     (previous, next) => refresh.value = next,
     fireImmediately: true,
   );
+  final access = ValueNotifier<Access?>(null);
+  ref.onDispose(access.dispose);
+  ref.listen<Access?>(
+    accessProvider,
+    (previous, next) => access.value = next,
+    fireImmediately: true,
+  );
 
   return GoRouter(
     initialLocation: Routes.splash,
-    refreshListenable: refresh,
+    refreshListenable: Listenable.merge([refresh, access]),
     routes: [
       GoRoute(
         path: Routes.splash,
         builder: (context, state) => const _SplashScreen(),
+      ),
+      GoRoute(
+        path: Routes.pro,
+        // Sekme kabuğunun üstünde tam ekran açılsın diye kökte.
+        pageBuilder: (context, state) => const MaterialPage(
+          fullscreenDialog: true,
+          child: PaywallScreen(),
+        ),
+      ),
+      GoRoute(
+        path: Routes.focus,
+        // Satın alma ekranı gibi kökte: odak ekranı sekme çubuğunu da örtmeli,
+        // dikkat dağıtan tek şey sayaç olsun.
+        pageBuilder: (context, state) => const MaterialPage(
+          fullscreenDialog: true,
+          child: FocusScreen(),
+        ),
       ),
       GoRoute(
         path: Routes.tour,
@@ -186,6 +215,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (!state0.tourSeen) {
         return location == Routes.tour ? null : Routes.tour;
       }
+
+      // Deneme bitti, abonelik yok: uygulamanın tek kapısı satın alma
+      // ekranı. Erişim henüz okunmadıysa (null) kilitlemiyoruz; aksi hâlde
+      // abone kullanıcı her açılışta bir an satın alma ekranını görüyordu.
+      final locked = access.value?.locked ?? false;
+      if (locked) return location == Routes.pro ? null : Routes.pro;
 
       final inSetup = location.startsWith(Routes.welcome) ||
           location == Routes.tour ||

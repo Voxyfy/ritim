@@ -95,7 +95,10 @@ void main() {
     await settle(tester);
 
     // App Review'un yaptığı: ada hiç dokunmadan sonuçları gir ve Kaydet'e bas.
-    await tester.enterText(find.widgetWithText(TextField, 'Doğru'), '12');
+    // Sayılar ekrandaki tuş takımından giriliyor; odak açılışta ilk dersin
+    // doğrusunda.
+    await tester.tap(find.byKey(const Key('tus-1')));
+    await tester.tap(find.byKey(const Key('tus-2')));
     await tester.pump();
     await tester.tap(find.widgetWithText(TextButton, 'Kaydet'));
     await settle(tester);
@@ -140,7 +143,9 @@ void main() {
     await unmount(tester);
   });
 
-  testWidgets('başlığı boş görev düğmesi tepkisiz değil, sönük', (tester) async {
+  testWidgets('başlığı boş görev düğmesi tepkisiz değil, sönük', (
+    tester,
+  ) async {
     await pump(tester, const Scaffold(body: AddTaskSheet()));
 
     final ekle = find.widgetWithText(FilledButton, 'Ekle');
@@ -158,7 +163,7 @@ void main() {
     await settle(tester);
     final gorevler =
         await tester.runAsync(() => db.watchTasksUpTo(DateTime.now()).first) ??
-            [];
+        [];
     expect(gorevler, hasLength(1));
 
     await unmount(tester);

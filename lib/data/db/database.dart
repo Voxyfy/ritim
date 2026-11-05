@@ -31,6 +31,20 @@ abstract final class SettingKeys {
 
   /// Haftalık planda günde kaç konu.
   static const planPerDay = 'plan_per_day';
+
+  /// Ücretsiz kullanım süresinin başladığı an (ISO 8601).
+  ///
+  /// Uygulamanın kendi tuttuğu deneme; Apple'ın deneme süresi kart istediği
+  /// için kullanılmıyor. Silinip yeniden kurulan uygulama süreyi baştan
+  /// başlatır — bunu bilerek kabul ediyoruz, sunucu yok.
+  static const trialStartedAt = 'trial_started_at';
+
+  /// Süren odak sayacı ([FocusTimer.encode] biçiminde JSON).
+  ///
+  /// Sayaç bellekte değil burada: uygulama arka plana atılıp sistem tarafından
+  /// öldürülse bile açılışta kaldığı yerden sürmeli. Sayaç yoksa anahtar da
+  /// yok.
+  static const focusTimer = 'focus_timer';
 }
 
 /// Uygulamanın tek SQLite veritabanı.
@@ -115,8 +129,33 @@ class RitimDatabase extends _$RitimDatabase {
     return row?.value;
   }
 
+  /// Deneme başlangıcını okur; yoksa şimdiyi yazar ve onu döndürür.
+  ///
+  /// İlk açılışta değil ilk çağrıda yazılıyor: güncellemeyi alan mevcut
+  /// kullanıcının yedi günü de güncellemeyi açtığı gün başlıyor, kurulum
+  /// tarihinden değil.
+  Future<DateTime> ensureTrialStart({DateTime? now}) async {
+    final raw = await readSetting(SettingKeys.trialStartedAt);
+    final parsed = raw == null ? null : DateTime.tryParse(raw);
+    if (parsed != null) return parsed;
+    final start = now ?? DateTime.now();
+    await writeSetting(SettingKeys.trialStartedAt, start.toIso8601String());
+    return start;
+  }
+
   Future<void> writeSetting(String key, String value) =>
       into(settings).insertOnConflictUpdate(Setting(key: key, value: value));
+
+  /// Anahtarı siler; "değer yok" ile "boş değer" karışmasın diye boş metin
+  /// yazmak yerine satır kaldırılıyor.
+  Future<void> deleteSetting(String key) =>
+      (delete(settings)..where((s) => s.key.equals(key))).go();
+
+  /// Tek bir ayarın canlı değeri; satır yoksa `null`.
+  Stream<String?> watchSetting(String key) =>
+      (select(settings)..where((s) => s.key.equals(key)))
+          .watchSingleOrNull()
+          .map((row) => row?.value);
 
   Future<bool> get isOnboarded async =>
       await readSetting(SettingKeys.onboarded) == 'true';
@@ -388,28 +427,104 @@ class RitimDatabase extends _$RitimDatabase {
   /// Artık konuya bağlı bir görevi tamamlamak çalışma kaydı yazar; kayıt da
   /// tekrarı planlar. Konusu olmayan işler ("kalem al") eskisi gibi yalnızca
   /// kapanır.
-  Future<void> completeTaskAsStudied(
+  ///
+  /// Dönen [CompletionSnapshot] tamamlamadan önceki hâlin fotoğrafı;
+  /// [undoQuickCompletion] ile işlem tam olarak geri alınır. Bugün ekranındaki
+  /// tek dokunuşla kayıt yanlış dakikaya basmayı ucuz tutmak için "Geri al"
+  /// sunuyor ve bunun yarım değil eksiksiz bir geri alma olması gerekiyor:
+  /// kayıt silinip tekrar görevi ileri tarihte kalsaydı öğrencinin merdiveni
+  /// sessizce kayardı. Görev yoksa `null` döner.
+  Future<CompletionSnapshot?> completeTaskAsStudied(
     int taskId, {
     required int minutes,
     int? questionsSolved,
     int? questionsWrong,
     String? note,
-  }) async {
-    final task =
-        await (select(tasks)..where((t) => t.id.equals(taskId))).getSingleOrNull();
-    if (task == null) return;
+  }) {
+    // Tek işlem: fotoğraf ile değişiklik arasına başka bir yazma girerse geri
+    // alma o yazmayı da ezerdi.
+    return transaction(() async {
+      final task = await (select(tasks)..where((t) => t.id.equals(taskId)))
+          .getSingleOrNull();
+      if (task == null) return null;
 
-    if (task.topicId != null) {
-      await logStudySession(
-        topicId: task.topicId!,
-        minutes: minutes,
-        questionsSolved: questionsSolved,
-        questionsWrong: questionsWrong,
-        note: note,
+      final topicId = task.topicId;
+      Topic? topic;
+      var reviewsBefore = const <Task>[];
+      int? sessionId;
+      if (topicId != null) {
+        topic = await (select(topics)..where((t) => t.id.equals(topicId)))
+            .getSingleOrNull();
+        reviewsBefore = await _pendingReviews(topicId);
+        sessionId = await logStudySession(
+          topicId: topicId,
+          minutes: minutes,
+          questionsSolved: questionsSolved,
+          questionsWrong: questionsWrong,
+          note: note,
+        );
+      }
+      await setTaskDone(taskId, done: true);
+
+      // Bu tamamlamanın yeni açtığı tekrar(lar): sonrasında bekleyen ama
+      // öncesinde olmayan tekrar görevleri.
+      final beforeIds = {for (final t in reviewsBefore) t.id};
+      final created = topicId == null
+          ? const <int>[]
+          : [
+              for (final t in await _pendingReviews(topicId))
+                if (!beforeIds.contains(t.id)) t.id,
+            ];
+
+      return CompletionSnapshot(
+        task: task,
+        topic: topic,
+        reviewsBefore: reviewsBefore,
+        sessionId: sessionId,
+        createdTaskIds: created,
       );
-    }
-    await setTaskDone(taskId, done: true);
+    });
   }
+
+  /// [completeTaskAsStudied] işlemini tek işlemde geri alır: çalışma kaydı
+  /// silinir, yeni açılan tekrar kaldırılır, tarihi yenilenen tekrar ve konu
+  /// eski hâline döner, görev yeniden açılır.
+  Future<void> undoQuickCompletion(CompletionSnapshot snapshot) {
+    return transaction(() async {
+      final sessionId = snapshot.sessionId;
+      if (sessionId != null) {
+        await (delete(studySessions)..where((s) => s.id.equals(sessionId)))
+            .go();
+      }
+      if (snapshot.createdTaskIds.isNotEmpty) {
+        await (delete(tasks)..where((t) => t.id.isIn(snapshot.createdTaskIds)))
+            .go();
+      }
+      // Görevin kendisi bir tekrarsa iki listede de var; ikinci yazma aynı
+      // satırı yazar, zararsız. Arada silinmiş bir satır geri gelmez
+      // (replace yalnızca var olanı günceller) — kullanıcının sildiğini
+      // diriltmek istemiyoruz.
+      for (final row in [...snapshot.reviewsBefore, snapshot.task]) {
+        await update(tasks).replace(row);
+      }
+      final topic = snapshot.topic;
+      if (topic != null) await update(topics).replace(topic);
+    });
+  }
+
+  /// Konunun bekleyen (tamamlanmamış) tekrar görevleri.
+  Future<List<Task>> _pendingReviews(int topicId) => (select(tasks)
+        ..where(
+          (t) =>
+              t.topicId.equals(topicId) &
+              t.source.equalsValue(TaskSource.review) &
+              t.done.equals(false),
+        ))
+      .get();
+
+  /// Tek bir görev; yoksa `null`. Odak ekranı başlığı için.
+  Future<Task?> taskById(int id) =>
+      (select(tasks)..where((t) => t.id.equals(id))).getSingleOrNull();
 
   /// Görevin başlığını, gününü ve kısa notunu günceller.
   ///
@@ -1204,7 +1319,11 @@ class RitimDatabase extends _$RitimDatabase {
       await delete(topicPhotos).go();
       await delete(topics).go();
       await delete(subjects).go();
-      await delete(settings).go();
+      // Deneme başlangıcı silinmiyor: "her şeyi sil" ücretsiz süreyi
+      // sıfırlayan bir düğme olmamalı.
+      await (delete(settings)
+            ..where((s) => s.key.equals(SettingKeys.trialStartedAt).not()))
+          .go();
 
       return photoPaths;
     });
@@ -1236,6 +1355,32 @@ class TaskItem {
     if (topicName == null) return subject!.name;
     return topicName == task.title ? subject!.name : topicName;
   }
+}
+
+/// [RitimDatabase.completeTaskAsStudied] öncesinin fotoğrafı; geri alma için.
+class CompletionSnapshot {
+  const CompletionSnapshot({
+    required this.task,
+    this.topic,
+    this.reviewsBefore = const [],
+    this.sessionId,
+    this.createdTaskIds = const [],
+  });
+
+  /// Görevin tamamlanmadan önceki satırı.
+  final Task task;
+
+  /// Konunun önceki satırı (durum, son çalışma tarihi).
+  final Topic? topic;
+
+  /// Konunun önceden bekleyen tekrarları; tarihleri yenilenmiş olabilir.
+  final List<Task> reviewsBefore;
+
+  /// Yazılan çalışma kaydı.
+  final int? sessionId;
+
+  /// Tamamlamanın yeni açtığı tekrar görevleri.
+  final List<int> createdTaskIds;
 }
 
 /// Bir konunun çalışma toplamları.

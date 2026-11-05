@@ -5,6 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
 import 'core/notifications.dart';
+import 'core/pro.dart';
 import 'core/providers.dart';
 import 'core/reminder_sync.dart';
 import 'core/router.dart';
@@ -26,10 +27,14 @@ Future<void> main() async {
   final notifications = NotificationService();
   await notifications.initialize();
 
+  final pro = ProService();
+  await pro.configure();
+
   runApp(
     ProviderScope(
       overrides: [
         notificationServiceProvider.overrideWithValue(notifications),
+        proServiceProvider.overrideWithValue(pro),
       ],
       child: const RitimApp(),
     ),

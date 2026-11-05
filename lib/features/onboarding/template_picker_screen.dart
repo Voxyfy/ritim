@@ -8,8 +8,10 @@ import '../../core/providers.dart';
 import '../../core/router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_metrics.dart';
-import '../../core/widgets/app_card.dart';
+import '../../data/db/database.dart';
 import '../../data/templates/study_template.dart';
+import '../plan/weekly_plan_sheet.dart';
+
 /// Kurulumun ikinci ve son adımı: neye çalıştığını seç.
 ///
 /// Seçim dokunuşta uygulanmaz. On beş şablonun en büyüğü 130 satır yazıyor ve
@@ -34,9 +36,13 @@ class _TemplatePickerScreenState extends ConsumerState<TemplatePickerScreen> {
 
     setState(() => _applying = true);
     try {
-      await ref.read(databaseProvider).applyTemplate(template);
+      // Veritabanı baştan alınıyor: kurulum bayrağı yazılınca yönlendirici
+      // bu ekranı söküyor ve sonrasında `ref` kullanılamıyor.
+      final db = ref.read(databaseProvider);
+      await db.applyTemplate(template);
       // Burada bilerek gezinme yok: yönlendirici kurulum bayrağını izliyor ve
       // işlem tamamlanır tamamlanmaz bizi taşıyor.
+      if (template.subjects.isNotEmpty) await _buildFirstPlan(db);
     } catch (error) {
       if (!mounted) return;
       setState(() => _applying = false);
@@ -45,6 +51,19 @@ class _TemplatePickerScreenState extends ConsumerState<TemplatePickerScreen> {
       );
     }
   }
+
+  /// İlk açılışta Bugün boş gelmesin diye iki haftalık plan kurulur.
+  ///
+  /// Boş bir liste "şimdi ne yapacağım?" sorusunu öğrenciye bırakıyordu;
+  /// dolu bir liste ilk görevi gösteriyor. Bugünün günü her zaman eklenir:
+  /// hafta sonu kuran öğrenci de ilk ekranda iş görsün. "Kendin kur"da konu
+  /// olmadığı için atlanıyor. Tercihler kaydedildiğinden "Plan kur" bu
+  /// düzenle açılır ve öğrenci değiştirebilir.
+  static Future<void> _buildFirstPlan(RitimDatabase db) => db.buildWeeklyPlan(
+    weekdays: {...WeeklyPlanSheet.defaultWeekdays, DateTime.now().weekday},
+    perDay: WeeklyPlanSheet.defaultPerDay,
+    weeks: 2,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +92,12 @@ class _TemplatePickerScreenState extends ConsumerState<TemplatePickerScreen> {
                   onRetry: () => ref.invalidate(templatesProvider),
                 ),
                 data: (list) => ListView(
-                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                  padding: const EdgeInsets.fromLTRB(
+                    Gap.page,
+                    Gap.sm,
+                    Gap.page,
+                    Gap.xxl,
+                  ),
                   children: [
                     Text(
                       'Hedefini seç, dersler ve konular hazır gelsin. '
@@ -84,11 +108,13 @@ class _TemplatePickerScreenState extends ConsumerState<TemplatePickerScreen> {
                       ),
                     ),
                     const SizedBox(height: Gap.xxl),
-                    for (final group in StudyTemplate.byGroup(list).entries) ...[
+                    for (final group in StudyTemplate.byGroup(
+                      list,
+                    ).entries) ...[
                       _GroupHeader(group.key),
                       for (final template in group.value)
                         Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.only(bottom: Gap.sm),
                           child: _TemplateCard(
                             template: template,
                             selected: _selected?.id == template.id,
@@ -134,7 +160,7 @@ class _CommitBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+      padding: const EdgeInsets.fromLTRB(Gap.page, Gap.md, Gap.page, Gap.md),
       decoration: const BoxDecoration(
         color: AppColors.background,
         border: Border(top: BorderSide(color: AppColors.border)),
@@ -164,6 +190,12 @@ class _CommitBar extends StatelessWidget {
   }
 }
 
+/// Şablon satırı: solda kısa adlı düğüm, yanında ad ve tek satır künye.
+///
+/// Eskiden her şablon ders rozetli büyük bir karttı ve on beş kart ekranı
+/// kutu yığınına çeviriyordu. Bugün ve Plan'daki zaman çizgisi diliyle aynı
+/// sade satır; seçili satır, satın alma ekranındaki plan kutuları gibi koyu
+/// kenarla ayrılıyor.
 class _TemplateCard extends StatelessWidget {
   const _TemplateCard({
     required this.template,
@@ -180,130 +212,113 @@ class _TemplateCard extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final isBlank = template.subjects.isEmpty;
 
-    return AppCard(
-      onTap: onTap,
+    return Semantics(
       selected: selected,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      button: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: Motion.quick,
+          padding: const EdgeInsets.all(Gap.md),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(Radii.md),
+            border: Border.all(
+              color: selected ? AppColors.selection : AppColors.hairline,
+              width: selected ? 2 : 1,
+            ),
+          ),
+          child: Row(
             children: [
+              _TemplateNode(template: template, selected: selected),
+              const SizedBox(width: Gap.md),
               Expanded(
-                child: Text(template.name, style: text.titleMedium),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(template.name, style: text.titleMedium),
+                    const SizedBox(height: Gap.xs),
+                    Text(
+                      template.description,
+                      style: text.bodySmall?.copyWith(height: 1.4),
+                    ),
+                    if (!isBlank) ...[
+                      const SizedBox(height: Gap.xs),
+                      Text(
+                        '${template.subjects.length} ders · '
+                        '${template.topicCount} konu',
+                        style: text.labelSmall,
+                      ),
+                    ],
+                  ],
+                ),
               ),
-              _SelectionDot(selected: selected),
             ],
           ),
-          const SizedBox(height: 6),
-          Text(
-            template.description,
-            style: text.bodySmall?.copyWith(height: 1.4),
-          ),
-          if (!isBlank) ...[
-            const SizedBox(height: Gap.lg),
-            _SubjectChips(subjects: template.subjects),
-            const SizedBox(height: Gap.md),
-            Text(
-              '${template.subjects.length} ders · ${template.topicCount} konu',
-              style: text.labelSmall,
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// Şablonun oluşturacağı dersler, renk kodlu rozetler hâlinde.
-///
-/// En fazla dördünü gösterir, kalanı sayar: tam liste TYT kartını diğerlerinin
-/// üç katı yükseklikte yapar ve kesinleştirme düğmesini gömerdi.
-class _SubjectChips extends StatelessWidget {
-  const _SubjectChips({required this.subjects});
-
-  static const _visible = 4;
-
-  final List<TemplateSubject> subjects;
-
-  @override
-  Widget build(BuildContext context) {
-    final shown = subjects.take(_visible).toList();
-    final hidden = subjects.length - shown.length;
-
-    return Wrap(
-      spacing: 6,
-      runSpacing: 6,
-      children: [
-        for (final subject in shown)
-          _Chip(
-            label: subject.name,
-            color: SubjectPalette.at(subject.colorIndex),
-          ),
-        if (hidden > 0)
-          _Chip(
-            label: '+$hidden',
-            color: const SubjectColor(
-              AppColors.textSecondary,
-              AppColors.surfaceMuted,
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip({required this.label, required this.color});
-
-  final String label;
-  final SubjectColor color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.wash,
-        borderRadius: BorderRadius.circular(Radii.full),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color.ink,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
         ),
       ),
     );
   }
 }
 
-class _SelectionDot extends StatelessWidget {
-  const _SelectionDot({required this.selected});
+/// Şablonun kısa adını taşıyan yuvarlatılmış kare düğüm.
+///
+/// Seçilince koyu dolguya ve onay işaretine geçiyor; ayrı bir seçim noktası
+/// satıra ikinci bir odak ekliyordu.
+class _TemplateNode extends StatelessWidget {
+  const _TemplateNode({required this.template, required this.selected});
 
+  static const _size = 48.0;
+
+  final StudyTemplate template;
   final bool selected;
 
+  /// "LGS · 8. Sınıf" → LGS, "10. Sınıf" → 10, "YKS · TYT" → TYT.
+  ///
+  /// YKS altındaki beş şablonun hepsine "YKS" yazmak düğümü anlamsız
+  /// kılardı; orada ayırt eden ikinci parça.
+  static String shortLabel(String name) {
+    final grade = RegExp(r'^(\d+)\.').firstMatch(name);
+    if (grade != null) return grade.group(1)!;
+    final parts = name.split(' · ');
+    final head = parts.length > 1 && parts.first == 'YKS' ? parts[1] : parts[0];
+    return head.split(RegExp('[ -]')).first;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isBlank = template.subjects.isEmpty;
+    final ink = selected ? AppColors.onSelection : AppColors.textPrimary;
+    final label = shortLabel(template.name);
+
     return AnimatedContainer(
       duration: Motion.quick,
-      width: 24,
-      height: 24,
+      width: _size,
+      height: _size,
+      alignment: Alignment.center,
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: selected ? AppColors.selection : Colors.transparent,
-        border: Border.all(
-          color: selected ? AppColors.selection : AppColors.border,
-          width: 2,
-        ),
+        color: selected ? AppColors.selection : AppColors.surfaceMuted,
+        borderRadius: BorderRadius.circular(Radii.sm),
       ),
       child: selected
-          ? const Icon(
-              PhosphorIconsRegular.check,
-              size: IconSize.sm,
-              color: AppColors.onAccent,
-            )
-          : null,
+          ? Icon(PhosphorIconsRegular.check, size: IconSize.md, color: ink)
+          : isBlank
+          ? Icon(PhosphorIconsRegular.plus, size: IconSize.md, color: ink)
+          // Text değil RichText: testler şablonu `textContaining('LGS')`
+          // ile buluyor; düğümdeki kısa ad ikinci bir eşleşme olmamalı.
+          : ExcludeSemantics(
+              child: RichText(
+                text: TextSpan(
+                  text: label,
+                  style: TextStyle(
+                    color: ink,
+                    fontSize: label.length > 3 ? 12 : 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
     );
   }
 }
@@ -316,7 +331,7 @@ class _GroupHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: Gap.md, left: Gap.xs),
       child: Text(
         title.toUpperCase(),
         style: const TextStyle(
@@ -354,7 +369,10 @@ class _ErrorState extends StatelessWidget {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: Gap.xl),
-            OutlinedButton(onPressed: onRetry, child: const Text('Tekrar dene')),
+            OutlinedButton(
+              onPressed: onRetry,
+              child: const Text('Tekrar dene'),
+            ),
           ],
         ),
       ),

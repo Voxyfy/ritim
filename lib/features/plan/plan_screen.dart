@@ -11,6 +11,7 @@ import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_fab.dart';
 import '../../core/widgets/illustration.dart';
 import '../../core/widgets/pill_tabs.dart';
+import '../../core/widgets/timeline_node.dart';
 import '../../data/db/database.dart';
 import '../../data/db/tables.dart';
 import 'weekly_plan_sheet.dart';
@@ -40,6 +41,22 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
 
   /// Takvimde seçili gün; altındaki liste bu güne ait.
   DateTime _selected = today();
+
+  /// Hafta sütunlarından bir güne atlamak için her günün satır anahtarı.
+  final _dayKeys = <DateTime, GlobalKey>{};
+
+  GlobalKey _keyFor(DateTime day) => _dayKeys.putIfAbsent(day, GlobalKey.new);
+
+  void _jumpTo(DateTime day) {
+    final target = _dayKeys[day]?.currentContext;
+    if (target == null) return;
+    Scrollable.ensureVisible(
+      target,
+      duration: Motion.slow,
+      curve: Motion.curve,
+      alignment: 0.05,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,10 +116,20 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                         Text(
                           planned.isEmpty
                               ? 'Önümüzdeki iki hafta boş.'
-                              : '${planned.length} günde '
+                              // "İki hafta" açıkça yazıyor: altındaki sütunlar
+                              // yalnızca ilk yedi günü gösteriyor ve "7 günde"
+                              // sayısı sütunlarla karıştırılıyordu.
+                              : 'Önümüzdeki iki haftada '
                                     '${planned.fold(0, (a, d) => a + d.items.length)} iş var.',
                           style: text.bodySmall,
                         ),
+                        if (!_calendar && planned.isNotEmpty) ...[
+                          const SizedBox(height: Gap.xl),
+                          _WeekColumns(
+                            days: list.take(7).toList(),
+                            onTap: _jumpTo,
+                          ),
+                        ],
                         if (_calendar) ...[
                           const SizedBox(height: Gap.xl),
                           MonthCalendar(
@@ -138,6 +165,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
                       // seçim aracı olmaktan çıkarıp süse çevirirdi.
                       itemCount: _calendar ? 1 : list.length,
                       itemBuilder: (context, index) => _DayRow(
+                        key: _calendar ? null : _keyFor(list[index].day),
                         day: _calendar
                             ? list.firstWhere(
                                 (d) => d.day.isSameDay(_selected),
@@ -175,7 +203,7 @@ Future<void> _openPlanSheet(BuildContext context) async {
 
 /// Tek bir günün satırı.
 class _DayRow extends StatelessWidget {
-  const _DayRow({required this.day, this.alwaysShow = false});
+  const _DayRow({required this.day, this.alwaysShow = false, super.key});
 
   final PlannedDay day;
 
@@ -223,14 +251,15 @@ class _DayRow extends StatelessWidget {
               ],
             ),
           ),
-          AppCard(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Column(
-              children: [
-                for (final item in day.items) _PlanItemRow(item: item),
-              ],
+          // Kart yerine Bugün ekranıyla aynı zaman çizgisi: iki ekranda aynı
+          // iş aynı biçimde görünsün, öğrenci Plan'dan Bugün'e geçince
+          // yeniden okumayı öğrenmesin.
+          for (final (i, item) in day.items.indexed)
+            _PlanItemRow(
+              item: item,
+              isFirst: i == 0,
+              isLast: i == day.items.length - 1,
             ),
-          ),
         ],
       ),
     );
@@ -238,9 +267,15 @@ class _DayRow extends StatelessWidget {
 }
 
 class _PlanItemRow extends StatelessWidget {
-  const _PlanItemRow({required this.item});
+  const _PlanItemRow({
+    required this.item,
+    required this.isFirst,
+    required this.isLast,
+  });
 
   final TaskItem item;
+  final bool isFirst;
+  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
@@ -249,38 +284,166 @@ class _PlanItemRow extends StatelessWidget {
         ? const SubjectColor(AppColors.textSecondary, AppColors.surfaceMuted)
         : SubjectPalette.at(item.subject!.colorIndex);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+    return IntrinsicHeight(
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: item.task.done ? AppColors.border : colour.ink,
-            ),
+          TimelineNode(
+            colour: colour,
+            letter: item.subject?.name.characters.first,
+            done: item.task.done,
+            isFirst: isFirst,
+            isLast: isLast,
+            size: 36,
           ),
           const SizedBox(width: Gap.md),
           Expanded(
-            child: Text(
-              item.task.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: text.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                color: item.task.done
-                    ? AppColors.textTertiary
-                    : AppColors.textPrimary,
-                decoration: item.task.done ? TextDecoration.lineThrough : null,
-                decorationColor: AppColors.textTertiary,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    item.task.title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: text.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: item.task.done
+                          ? AppColors.textTertiary
+                          : AppColors.textPrimary,
+                      decoration:
+                          item.task.done ? TextDecoration.lineThrough : null,
+                      decorationColor: AppColors.textTertiary,
+                    ),
+                  ),
+                  if (item.subject != null)
+                    Text(
+                      item.subject!.name,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                ],
               ),
             ),
           ),
           const SizedBox(width: Gap.sm),
-          _SourceBadge(source: item.task.source),
+          Center(child: _SourceBadge(source: item.task.source)),
         ],
       ),
+    );
+  }
+}
+
+/// Haftanın sütun görünümü: her gün bir sütun, her iş ders renginde bir
+/// kapsül.
+///
+/// Liste "hangi gün ne var"ı sırayla okutuyor; sütunlar ise yükün haftaya
+/// nasıl dağıldığını tek bakışta gösteriyor — perşembe dolu, cumartesi boş.
+/// Kapsüller sayılmak için değil şekil vermek için: bu yüzden üst sınırlı
+/// ve sayının kendisi altta yazıyor.
+class _WeekColumns extends StatelessWidget {
+  const _WeekColumns({required this.days, required this.onTap});
+
+  final List<PlannedDay> days;
+  final ValueChanged<DateTime> onTap;
+
+  static const _maxPills = 6;
+  static const _dayNames = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      padding: const EdgeInsets.fromLTRB(10, 14, 10, 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (final day in days)
+            Expanded(
+              child: Semantics(
+                button: true,
+                label: '${_dayNames[day.day.weekday - 1]} '
+                    '${day.day.day}, ${day.items.length} iş',
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: day.isEmpty ? null : () => onTap(day.day),
+                  child: _Column(day: day, name: _dayNames[day.day.weekday - 1]),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Column extends StatelessWidget {
+  const _Column({required this.day, required this.name});
+
+  final PlannedDay day;
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final isToday = day.day.isSameDay(today());
+    final shown = day.items.take(_WeekColumns._maxPills).toList();
+
+    return Column(
+      children: [
+        Text(
+          name,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: isToday ? AppColors.textPrimary : AppColors.textTertiary,
+          ),
+        ),
+        const SizedBox(height: Gap.sm),
+        // Sabit yükseklik: sütunlar aynı tabandan başlasın, dolu gün boş
+        // günün yanında uzun dursun.
+        SizedBox(
+          height: _WeekColumns._maxPills * 16.0,
+          child: Column(
+            children: [
+              for (final item in shown)
+                Container(
+                  width: 22,
+                  height: 12,
+                  margin: const EdgeInsets.only(bottom: 4),
+                  decoration: BoxDecoration(
+                    color: item.task.done
+                        ? AppColors.progressTrack
+                        : (item.subject == null
+                            ? AppColors.selectionSoft
+                            : SubjectPalette.at(item.subject!.colorIndex).ink),
+                    borderRadius: BorderRadius.circular(Radii.full),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        Container(
+          width: 26,
+          height: 26,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isToday ? AppColors.selection : Colors.transparent,
+          ),
+          child: Text(
+            '${day.day.day}',
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              fontFeatures: const [FontFeature.tabularFigures()],
+              color: isToday ? AppColors.onSelection : AppColors.textPrimary,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -9,6 +9,7 @@ import '../../core/router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_metrics.dart';
 import '../../core/widgets/app_card.dart';
+import '../../core/widgets/timeline_node.dart';
 import '../../domain/exam_scoring.dart';
 
 /// Bir denemenin analizi.
@@ -25,7 +26,8 @@ class ExamDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final exams = ref.watch(mockExamsProvider).valueOrNull ?? const [];
-    final scores = ref.watch(examScoresProvider(examId)).valueOrNull ?? const [];
+    final scores =
+        ref.watch(examScoresProvider(examId)).valueOrNull ?? const [];
     final text = Theme.of(context).textTheme;
 
     final exam = exams.where((e) => e.id == examId).firstOrNull;
@@ -34,7 +36,9 @@ class ExamDetailScreen extends ConsumerWidget {
     final penalty = WrongPenalty.values[exam.penalty];
     final total = ExamScoring.totalNet(scores, penalty);
     final weakest = ExamScoring.weakest(scores, penalty);
-    final analyses = scores.map((s) => ExamScoring.analyse(s, penalty)).toList();
+    final analyses = scores
+        .map((s) => ExamScoring.analyse(s, penalty))
+        .toList();
     final peak = analyses.fold<double>(
       0,
       (max, a) => a.net > max ? a.net : max,
@@ -73,7 +77,7 @@ class ExamDetailScreen extends ConsumerWidget {
           const SizedBox(height: Gap.md),
           for (final analysis in analyses) ...[
             _SubjectNetRow(analysis: analysis, peak: peak),
-            const SizedBox(height: Gap.md),
+            const SizedBox(height: Gap.lg),
           ],
           if (weakest.isNotEmpty) ...[
             const SizedBox(height: Gap.sm),
@@ -87,7 +91,7 @@ class ExamDetailScreen extends ConsumerWidget {
             const SizedBox(height: Gap.md),
             for (final analysis in weakest) ...[
               _WeakRow(analysis: analysis),
-              const SizedBox(height: Gap.sm),
+              const SizedBox(height: Gap.md),
             ],
             const SizedBox(height: Gap.lg),
             FilledButton(
@@ -120,7 +124,8 @@ class ExamDetailScreen extends ConsumerWidget {
     final saved = await db.readPlanSettings();
 
     final count = await db.buildWeeklyPlan(
-      weekdays: saved?.weekdays ??
+      weekdays:
+          saved?.weekdays ??
           {
             DateTime.monday,
             DateTime.tuesday,
@@ -190,10 +195,11 @@ class _TotalCard extends StatelessWidget {
                 style: text.bodySmall,
               ),
               const SizedBox(height: Gap.xs),
-              Text(
-                '$subjectCount ders · ${penalty.shortLabel}',
-                style: text.labelSmall,
-              ),
+              Text('$subjectCount ders', style: text.labelSmall),
+              // Kural kendi satırında ve tam cümleyle: kısa hâli ("3 yanlış")
+              // deneme listesindeki yanlış sayısının yanında yanlış sayısı
+              // gibi okunuyordu.
+              Text(penalty.label, style: text.labelSmall),
             ],
           ),
         ],
@@ -210,6 +216,21 @@ String formatNet(double net) {
       : NumberFormat('0.00', 'tr_TR').format(rounded);
 }
 
+/// Satırın ders düğümü. Bu ekranda satırlar bir zaman dizisi değil, bu
+/// yüzden çizgisiz; yükseklik sabitlenmezse düğümün çizgi alanları
+/// sınırsız yükseklikte açılamıyor.
+Widget _node(SubjectScore score) => SizedBox(
+  height: 36,
+  child: TimelineNode(
+    colour: SubjectPalette.at(score.colorIndex),
+    letter: score.name.characters.firstOrNull,
+    done: false,
+    isFirst: true,
+    isLast: true,
+    size: 36,
+  ),
+);
+
 class _SubjectNetRow extends StatelessWidget {
   const _SubjectNetRow({required this.analysis, required this.peak});
 
@@ -224,58 +245,71 @@ class _SubjectNetRow extends StatelessWidget {
     // olduğu gibi yazılıyor.
     final ratio = peak <= 0 ? 0.0 : (analysis.net.clamp(0, peak) / peak);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                score.name,
-                style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
+        _node(score),
+        const SizedBox(width: Gap.md),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      score.name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    formatNet(analysis.net),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimary,
+                      fontFeatures: [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ],
               ),
-            ),
-            Text(
-              '${score.correct}D · ${score.wrong}Y · ${score.blank}B',
-              style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
-            ),
-            const SizedBox(width: Gap.md),
-            SizedBox(
-              width: 48,
-              child: Text(
-                formatNet(analysis.net),
-                textAlign: TextAlign.right,
+              Text(
+                '${score.correct}D · ${score.wrong}Y · ${score.blank}B',
                 style: const TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 12.5,
                   color: AppColors.textSecondary,
                   fontFeatures: [FontFeature.tabularFigures()],
                 ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: Gap.xs),
-        LayoutBuilder(
-          builder: (context, constraints) => Stack(
-            children: [
-              Container(
-                height: 8,
-                decoration: BoxDecoration(
-                  color: AppColors.progressTrack,
-                  borderRadius: BorderRadius.circular(Radii.xs),
-                ),
-              ),
-              Container(
-                height: 8,
-                width: (constraints.maxWidth * ratio).clamp(6, double.infinity),
-                decoration: BoxDecoration(
-                  color: colour,
-                  borderRadius: BorderRadius.circular(Radii.xs),
+              const SizedBox(height: Gap.xs),
+              // İnce çubuk: renk kimliği burada yaşıyor, adın yanında.
+              LayoutBuilder(
+                builder: (context, constraints) => Stack(
+                  children: [
+                    Container(
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: AppColors.progressTrack,
+                        borderRadius: BorderRadius.circular(Radii.xs),
+                      ),
+                    ),
+                    Container(
+                      height: 4,
+                      width: (constraints.maxWidth * ratio).clamp(
+                        4,
+                        double.infinity,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colour,
+                        borderRadius: BorderRadius.circular(Radii.xs),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -286,6 +320,9 @@ class _SubjectNetRow extends StatelessWidget {
   }
 }
 
+/// Zayıf ders satırı: kart yok, sayfa zemininde düğüm ve oran.
+///
+/// Oran mürdüm renkte: "geride" sinyalinin uygulamadaki tek rengi bu.
 class _WeakRow extends StatelessWidget {
   const _WeakRow({required this.analysis});
 
@@ -293,42 +330,32 @@ class _WeakRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colour = SubjectPalette.at(analysis.score.colorIndex);
-
-    return AppCard(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Gap.lg,
-        vertical: Gap.md,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(shape: BoxShape.circle, color: colour.ink),
-          ),
-          const SizedBox(width: Gap.md),
-          Expanded(
-            child: Text(
-              analysis.score.name,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
-              ),
-            ),
-          ),
-          Text(
-            '%${((analysis.accuracy ?? 0) * 100).round()} doğru',
+    return Row(
+      children: [
+        _node(analysis.score),
+        const SizedBox(width: Gap.md),
+        Expanded(
+          child: Text(
+            analysis.score.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: AppColors.overdue,
-              fontFeatures: [FontFeature.tabularFigures()],
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
             ),
           ),
-        ],
-      ),
+        ),
+        Text(
+          '%${((analysis.accuracy ?? 0) * 100).round()} doğru',
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: AppColors.overdue,
+            fontFeatures: [FontFeature.tabularFigures()],
+          ),
+        ),
+      ],
     );
   }
 }

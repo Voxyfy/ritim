@@ -5,7 +5,7 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 import '../../core/router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_metrics.dart';
-import '../../core/widgets/illustration.dart';
+import 'widgets/demo_rows.dart';
 
 /// İlk açılış. Tek vaat, tek düğme.
 ///
@@ -13,8 +13,9 @@ import '../../core/widgets/illustration.dart';
 /// ne olduğunu anlatan üç slayt gerekmiyor ve buradaki her fazladan dokunuş,
 /// derslerini görmeden kaybettiğimiz bir kullanıcı demek.
 ///
-/// Sahne iki tonlu: üst yarı soluk kiremit bir pano, illüstrasyon onun
-/// üstünde; alt yarı fildişi zemin ve metin. Pano, uygulamanın geri
+/// Sahne iki tonlu: üst yarı soluk kiremit bir pano, üstünde yüzen küçük
+/// bir Bugün ekranı; alt yarı fildişi zemin ve metin. Önce panoda bir
+/// çizim vardı; güzeldi ama uygulamanın ne yaptığını anlatmıyordu. Pano, uygulamanın geri
 /// kalanındaki kartlarla aynı yarıçapı taşıyor — karşılama ekranı ayrı bir
 /// dil konuşmuyor, içerinin ilk kartı.
 class WelcomeScreen extends StatelessWidget {
@@ -58,12 +59,17 @@ class WelcomeScreen extends StatelessWidget {
                           child: const SizedBox.square(dimension: 220),
                         ),
                       ),
+                      // Çizim yerine ürünün kendisi: küçük bir Bugün ekranı.
+                      // Öğrenci derslerini görmeden ne alacağını görsün;
+                      // içeri girdiğinde aynı satırları tanısın.
+                      // Küçük ekranda pano daralıyor; önizleme kesilmek
+                      // yerine orantılı küçülsün.
                       const Center(
                         child: Padding(
-                          padding: EdgeInsets.all(Gap.section),
-                          child: IllustrationView(
-                            Illustration.welcome,
-                            height: 240,
+                          padding: EdgeInsets.all(Gap.xxl),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: SizedBox(width: 300, child: _TodayPreview()),
                           ),
                         ),
                       ),
@@ -93,8 +99,8 @@ class WelcomeScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: Gap.lg),
                     Text(
-                      'Konularını takip et, çalıştığını kaydet. '
-                      'Tekrar zamanı geldiğinde Ritim sana hatırlatır.',
+                      'Konularını takip et, çalıştığını iki dokunuşla '
+                      'kaydet. Tekrar zamanı geldiğinde Ritim sana hatırlatır.',
                       style: text.bodyMedium?.copyWith(
                         color: AppColors.textSecondary,
                         height: 1.5,
@@ -172,6 +178,73 @@ class _StartButton extends StatelessWidget {
                     ),
                   ),
                 ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Karşılama panosundaki ürün önizlemesi.
+///
+/// Gölge taşıyor: panonun üstünde yüzen bir katman, uygulamadaki gölge
+/// kuralına uygun.
+class _TodayPreview extends StatelessWidget {
+  const _TodayPreview();
+
+  @override
+  Widget build(BuildContext context) {
+    return ExcludeSemantics(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 320),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(
+            Gap.lg,
+            Gap.lg,
+            Gap.lg,
+            Gap.sm,
+          ),
+          decoration: const BoxDecoration(
+            color: AppColors.background,
+            borderRadius: BorderRadius.all(Radius.circular(Radii.md)),
+            boxShadow: AppColors.floatingShadow,
+          ),
+          child: const Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '2 iş kaldı',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+              ),
+              SizedBox(height: Gap.md),
+              DemoWeekStrip(),
+              SizedBox(height: Gap.md),
+              DemoTaskRow(
+                colour: DemoSubjects.matematik,
+                letter: 'M',
+                title: 'Tekrar: Üslü İfadeler',
+                meta: 'Matematik · tekrar',
+                trailing: DemoCheck(),
+                isFirst: true,
+              ),
+              DemoTaskRow(
+                colour: DemoSubjects.turkce,
+                letter: 'T',
+                title: 'Sözcükte Anlam',
+                meta: 'Türkçe · plan',
+                trailing: DemoCheck(),
+              ),
+              DemoTaskRow(
+                colour: DemoSubjects.fen,
+                letter: 'F',
+                title: 'Mevsimler ve İklim',
+                meta: 'Fen Bilimleri · 30 dk',
+                trailing: DemoCheck(done: true),
+                done: true,
+                isLast: true,
               ),
             ],
           ),

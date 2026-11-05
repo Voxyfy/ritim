@@ -13,6 +13,18 @@ import '../../domain/weekly_planner.dart';
 class WeeklyPlanSheet extends ConsumerStatefulWidget {
   const WeeklyPlanSheet({super.key});
 
+  /// Varsayılan: hafta içi her gün, günde iki konu. Ortaokul öğrencisinin
+  /// akşam etüdüne oturttuğumuz gerçekçi bir yük. İlk açılışta kendiliğinden
+  /// kurulan plan da bunu kullanıyor; iki yerde ayrı sayı tutulmasın.
+  static const defaultWeekdays = {
+    DateTime.monday,
+    DateTime.tuesday,
+    DateTime.wednesday,
+    DateTime.thursday,
+    DateTime.friday,
+  };
+  static const defaultPerDay = 2;
+
   static Future<int?> show(BuildContext context) {
     return showModalBottomSheet<int>(
       context: context,
@@ -37,16 +49,8 @@ class _WeeklyPlanSheetState extends ConsumerState<WeeklyPlanSheet> {
     DateTime.sunday: 'Paz',
   };
 
-  /// Varsayılan: hafta içi her gün, günde iki konu. Ortaokul öğrencisinin
-  /// akşam etüdüne oturttuğumuz gerçekçi bir yük.
-  Set<int> _weekdays = {
-    DateTime.monday,
-    DateTime.tuesday,
-    DateTime.wednesday,
-    DateTime.thursday,
-    DateTime.friday,
-  };
-  int _perDay = 2;
+  Set<int> _weekdays = {...WeeklyPlanSheet.defaultWeekdays};
+  int _perDay = WeeklyPlanSheet.defaultPerDay;
   bool _saving = false;
 
   @override

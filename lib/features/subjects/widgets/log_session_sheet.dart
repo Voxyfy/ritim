@@ -14,7 +14,12 @@ import '../../../core/theme/app_metrics.dart';
 /// rozetler. Soru alanları sınava hazırlanmayanlar için görünür ama zorunlu
 /// değil — veri yoksa tekrar motoru sabit aralıklara düşüyor.
 class LogSessionSheet extends ConsumerStatefulWidget {
-  const LogSessionSheet({required this.topicId, this.taskId, super.key});
+  const LogSessionSheet({
+    required this.topicId,
+    this.taskId,
+    this.initialMinutes,
+    super.key,
+  });
 
   final int topicId;
 
@@ -22,16 +27,25 @@ class LogSessionSheet extends ConsumerStatefulWidget {
   /// Kayıt yazıldığında görev de kapanır.
   final int? taskId;
 
+  /// Önceden seçili süre. Odak sayacından gelindiğinde ölçülen dakika; hazır
+  /// rozetlerden biri değilse listeye eklenir ki öğrenci ölçüleni görsün.
+  final int? initialMinutes;
+
   static Future<bool?> show(
     BuildContext context,
     int topicId, {
     int? taskId,
+    int? initialMinutes,
   }) {
     return showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       useRootNavigator: true,
-      builder: (context) => LogSessionSheet(topicId: topicId, taskId: taskId),
+      builder: (context) => LogSessionSheet(
+        topicId: topicId,
+        taskId: taskId,
+        initialMinutes: initialMinutes,
+      ),
     );
   }
 
@@ -43,7 +57,13 @@ class _LogSessionSheetState extends ConsumerState<LogSessionSheet> {
   /// Dakika seçenekleri. Bir ders saati (40) ve pomodoro (25) bilerek listede.
   static const _presets = [15, 25, 40, 60, 90, 120];
 
-  int _minutes = 40;
+  late int _minutes = widget.initialMinutes ?? 40;
+
+  late final List<int> _choices = {
+    ..._presets,
+    if (widget.initialMinutes != null) widget.initialMinutes!,
+  }.toList()
+    ..sort();
 
   /// "Bu konuyu bitirdim" işaretli mi?
   ///
@@ -138,7 +158,7 @@ class _LogSessionSheetState extends ConsumerState<LogSessionSheet> {
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  for (final minutes in _presets)
+                  for (final minutes in _choices)
                     _MinuteChip(
                       minutes: minutes,
                       selected: _minutes == minutes,
@@ -233,7 +253,9 @@ class _MinuteChip extends StatelessWidget {
           ),
         ),
         child: Text(
-          minutes < 60 ? '$minutes dk' : '${minutes ~/ 60} sa',
+          minutes < 60 || minutes % 60 != 0
+              ? '$minutes dk'
+              : '${minutes ~/ 60} sa',
           style: TextStyle(
             color: selected ? AppColors.onSelection : AppColors.textSecondary,
             fontWeight: FontWeight.w700,

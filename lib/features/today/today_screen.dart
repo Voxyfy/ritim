@@ -12,13 +12,17 @@ import '../../core/widgets/app_fab.dart';
 import '../../core/widgets/illustration.dart';
 import '../../core/widgets/section_header.dart';
 import '../../data/db/database.dart';
+import '../focus/focus_screen.dart';
 import '../plan/weekly_plan_sheet.dart';
 import '../subjects/widgets/log_session_sheet.dart';
+import 'quick_log.dart';
 import 'widgets/add_task_sheet.dart';
 import 'widgets/day_header.dart';
+import 'widgets/next_up_card.dart';
 import 'widgets/stats_section.dart';
 import 'widgets/task_detail_sheet.dart';
 import 'widgets/task_tile.dart';
+import 'widgets/week_strip.dart';
 
 /// Uygulamanın ana ekranı: bugün yapılacaklar.
 ///
@@ -45,6 +49,7 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
     final tasks = ref.watch(todayTasksProvider);
     final db = ref.read(databaseProvider);
     final streak = ref.watch(streakProvider).valueOrNull ?? 0;
+    final focus = ref.watch(focusTimerProvider).valueOrNull;
 
     return Scaffold(
       body: SafeArea(
@@ -61,6 +66,12 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                 .toList();
             final finished = items.where((i) => i.task.done).toList();
             final done = finished.length;
+            // Sayaç çalıştırmak çalışmayı ölçmek demek; "kalem al" gibi
+            // konusuz bir işe odak sayacı açmanın anlamı yok.
+            final next = [
+              ...overdue,
+              ...pending,
+            ].where((i) => i.topic != null).firstOrNull;
 
             return CustomScrollView(
               slivers: [
@@ -74,6 +85,26 @@ class _TodayScreenState extends ConsumerState<TodayScreen> {
                     ),
                   ),
                 ),
+                const SliverPadding(
+                  padding: EdgeInsets.fromLTRB(16, 0, 16, 24),
+                  sliver: SliverToBoxAdapter(child: WeekStrip()),
+                ),
+                if (focus != null || next != null)
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                    sliver: SliverToBoxAdapter(
+                      child: focus != null
+                          ? FocusBar(
+                              timer: focus,
+                              onTap: () => context.push(Routes.focus),
+                            )
+                          : NextUpCard(
+                              item: next!,
+                              onStart: () =>
+                                  startFocus(context, db, next.task.id),
+                            ),
+                    ),
+                  ),
                 // Özet başlığın hemen altında: ana ekran önce "nerede
                 // duruyorum" sorusuna cevap versin, sonra "bugün ne var"
                 // desin. Günün listesi zaten hemen altında.
@@ -175,12 +206,29 @@ class _TaskSliver extends StatelessWidget {
             );
           }
 
-          final item = items[index - (title == null ? 0 : 1)];
+          final i = index - (title == null ? 0 : 1);
+          final item = items[i];
           return Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.only(bottom: i == items.length - 1 ? 16 : 0),
             child: TaskTile(
+              // Satır durum taşıyor (açık rozetler); liste değişince durumun
+              // komşu göreve kaymaması için görevin kimliğine bağlı.
+              key: ValueKey('gorev-${item.task.id}'),
               item: item,
-              onToggle: (done) => _toggleTask(context, db, item, done: done),
+              isFirst: i == 0,
+              isLast: i == items.length - 1,
+              onToggle: (done) => db.setTaskDone(item.task.id, done: done),
+              onQuickLog: (minutes) => quickLog(
+                ScaffoldMessenger.of(context),
+                db,
+                item.task.id,
+                minutes,
+              ),
+              onDetails: () => LogSessionSheet.show(
+                context,
+                item.topic!.id,
+                taskId: item.task.id,
+              ),
               onSnooze: () => db.snoozeTask(item.task.id),
               onDelete: () => db.deleteTask(item.task.id),
               onOpen: () => onOpen(context, item),
@@ -232,33 +280,6 @@ class _EmptyState extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Bir görevi işaretler.
-///
-/// Konuya bağlı bir görevi tamamlamak, "Çalıştım" sayfasını açar: öğrenci
-/// listede konuyu görüp çalışıyor ve işaretliyor; uygulama bunu çalışma
-/// saymazsa tekrar hiç planlanmıyor ve vaadimiz sessizce kırılıyor. Sayfayı
-/// kapatırsa görev işaretlenmemiş kalıyor — yanlışlıkla dokunma cezasız.
-///
-/// Konusu olmayan işler ("kalem al") doğrudan kapanır.
-Future<void> _toggleTask(
-  BuildContext context,
-  RitimDatabase db,
-  TaskItem item, {
-  required bool done,
-}) async {
-  if (!done || item.topic == null) {
-    await db.setTaskDone(item.task.id, done: done);
-    return;
-  }
-
-  final logged = await LogSessionSheet.show(
-    context,
-    item.topic!.id,
-    taskId: item.task.id,
-  );
-  if (logged != true) return;
 }
 
 /// Katlanan "Bitenler" başlığı.

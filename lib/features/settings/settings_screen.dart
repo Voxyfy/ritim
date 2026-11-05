@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/notifications.dart';
+import '../../core/pro.dart';
 import '../../core/providers.dart';
+import '../../core/router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_metrics.dart';
 import '../../core/widgets/app_card.dart';
@@ -19,112 +23,144 @@ class SettingsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final reminder = ref.watch(reminderSettingsProvider).valueOrNull ??
+    final reminder =
+        ref.watch(reminderSettingsProvider).valueOrNull ??
         ReminderSettings.initial;
     final text = Theme.of(context).textTheme;
+    final access = ref.watch(accessProvider);
 
     return Scaffold(
       body: SafeArea(
         bottom: false,
         child: ListView(
-        padding: const EdgeInsets.fromLTRB(
-          Gap.page,
-          Gap.xl,
-          Gap.page,
-          Gap.listBottom,
-        ),
-        children: [
-          Text('Ayarlar', style: text.headlineMedium),
-          const SizedBox(height: Gap.xxl),
-          _SectionTitle('Hatırlatma'),
-          AppCard(
-            padding: EdgeInsets.zero,
-            child: _Row(
-              icon: PhosphorIconsRegular.bell,
-              title: 'Tekrar hatırlatmaları',
-              subtitle: reminder.enabled
-                  ? 'Açık · her gün ${NotificationService.formatHour(reminder.hour)}'
-                  : 'Kapalı',
-              onTap: () => ReminderSheet.show(context),
-            ),
+          padding: const EdgeInsets.fromLTRB(
+            Gap.page,
+            Gap.xl,
+            Gap.page,
+            Gap.listBottom,
           ),
-          const SizedBox(height: Gap.section),
+          children: [
+            Text('Ayarlar', style: text.headlineMedium),
+            const SizedBox(height: Gap.xxl),
+            if (access != null && ref.watch(proServiceProvider).enabled) ...[
+              _SectionTitle('Abonelik'),
+              AppCard(
+                padding: EdgeInsets.zero,
+                child: _Row(
+                  icon: PhosphorIconsRegular.sparkle,
+                  title: 'Ritim Pro',
+                  subtitle: access.pro
+                      ? 'Etkin. Aboneliği Apple Kimliği ayarlarından '
+                            'yönetebilirsin.'
+                      : 'Ücretsiz denemenin bitmesine ${access.daysLeft} gün '
+                            'var. Planları gör.',
+                  onTap: () => access.pro
+                      ? launchUrl(
+                          Uri.parse(
+                            'https://apps.apple.com/account/subscriptions',
+                          ),
+                        )
+                      : context.push(Routes.pro),
+                ),
+              ),
+              const SizedBox(height: Gap.section),
+            ],
+            _SectionTitle('Hatırlatma'),
+            AppCard(
+              padding: EdgeInsets.zero,
+              child: _Row(
+                icon: PhosphorIconsRegular.bell,
+                title: 'Tekrar hatırlatmaları',
+                subtitle: reminder.enabled
+                    ? 'Açık · her gün ${NotificationService.formatHour(reminder.hour)}'
+                    : 'Kapalı',
+                onTap: () => ReminderSheet.show(context),
+              ),
+            ),
+            const SizedBox(height: Gap.section),
 
-          _SectionTitle('Sıfırlama'),
-          Text(
-            'Hangisinin neyi sildiğini altında yazıyor. Silinen veri geri '
-            'gelmiyor.',
-            style: text.bodySmall,
-          ),
-          const SizedBox(height: Gap.md),
-          AppCard(
-            padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                _Row(
-                  icon: PhosphorIconsRegular.arrowCounterClockwise,
-                  title: 'Konu ilerlemesini sıfırla',
-                  subtitle: 'Tüm konular "başlanmadı" olur. Notlar, '
-                      'fotoğraflar ve çalışma geçmişi kalır.',
-                  onTap: () => _confirm(
-                    context,
-                    title: 'Konu ilerlemesi sıfırlansın mı?',
-                    body: 'Bütün konular "başlanmadı" durumuna döner. '
-                        'Notların, fotoğrafların ve çalışma kayıtların '
-                        'olduğu gibi kalır.',
-                    action: 'Sıfırla',
-                    onConfirm: () =>
-                        ref.read(databaseProvider).resetTopicProgress(),
-                    done: 'Konu ilerlemesi sıfırlandı.',
-                  ),
-                ),
-                const Divider(height: 1, color: AppColors.hairline),
-                _Row(
-                  icon: PhosphorIconsRegular.clockCounterClockwise,
-                  title: 'Çalışma geçmişini sil',
-                  subtitle: 'Çalışma kayıtları, görevler ve bekleyen '
-                      'tekrarlar silinir. Dersler, konular ve notlar kalır.',
-                  onTap: () => _confirm(
-                    context,
-                    title: 'Çalışma geçmişi silinsin mi?',
-                    body: 'Bütün çalışma kayıtların, görevlerin ve bekleyen '
-                        'tekrarların silinir. Derslerin, konuların, notların '
-                        've fotoğrafların kalır.',
-                    action: 'Sil',
-                    destructive: true,
-                    onConfirm: () =>
-                        ref.read(databaseProvider).resetStudyHistory(),
-                    done: 'Çalışma geçmişi silindi.',
-                  ),
-                ),
-                const Divider(height: 1, color: AppColors.hairline),
-                _Row(
-                  icon: PhosphorIconsRegular.trash,
-                  title: 'Her şeyi sil ve baştan başla',
-                  subtitle: 'Dersler, konular, notlar, fotoğraflar — hepsi '
-                      'gider. Uygulama ilk açılış hâline döner.',
-                  colour: AppColors.overdue,
-                  onTap: () => _confirm(
-                    context,
-                    title: 'Her şey silinsin mi?',
-                    body: 'Derslerin, konuların, notların, fotoğrafların ve '
-                        'bütün geçmişin silinir. Uygulama ilk açılış hâline '
-                        'döner. Bu işlem geri alınamaz.',
-                    action: 'Her şeyi sil',
-                    destructive: true,
-                    onConfirm: () async {
-                      final paths =
-                          await ref.read(databaseProvider).clearAll();
-                      await ref.read(photoStoreProvider).deleteAll(paths);
-                      // Yönlendirici kurulum bayrağını izliyor; bayrak
-                      // silinince karşılama ekranına kendiliğinden dönüyoruz.
-                    },
-                  ),
-                ),
-              ],
+            _SectionTitle('Sıfırlama'),
+            Text(
+              'Hangisinin neyi sildiğini altında yazıyor. Silinen veri geri '
+              'gelmiyor.',
+              style: text.bodySmall,
             ),
-          ),
-        ],
+            const SizedBox(height: Gap.md),
+            AppCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  _Row(
+                    icon: PhosphorIconsRegular.arrowCounterClockwise,
+                    title: 'Konu ilerlemesini sıfırla',
+                    subtitle:
+                        'Tüm konular "başlanmadı" olur. Notlar, '
+                        'fotoğraflar ve çalışma geçmişi kalır.',
+                    onTap: () => _confirm(
+                      context,
+                      title: 'Konu ilerlemesi sıfırlansın mı?',
+                      body:
+                          'Bütün konular "başlanmadı" durumuna döner. '
+                          'Notların, fotoğrafların ve çalışma kayıtların '
+                          'olduğu gibi kalır.',
+                      action: 'Sıfırla',
+                      onConfirm: () =>
+                          ref.read(databaseProvider).resetTopicProgress(),
+                      done: 'Konu ilerlemesi sıfırlandı.',
+                    ),
+                  ),
+                  const Divider(height: 1, color: AppColors.hairline),
+                  _Row(
+                    icon: PhosphorIconsRegular.clockCounterClockwise,
+                    title: 'Çalışma geçmişini sil',
+                    subtitle:
+                        'Çalışma kayıtları, görevler ve bekleyen '
+                        'tekrarlar silinir. Dersler, konular ve notlar kalır.',
+                    onTap: () => _confirm(
+                      context,
+                      title: 'Çalışma geçmişi silinsin mi?',
+                      body:
+                          'Bütün çalışma kayıtların, görevlerin ve bekleyen '
+                          'tekrarların silinir. Derslerin, konuların, notların '
+                          've fotoğrafların kalır.',
+                      action: 'Sil',
+                      destructive: true,
+                      onConfirm: () =>
+                          ref.read(databaseProvider).resetStudyHistory(),
+                      done: 'Çalışma geçmişi silindi.',
+                    ),
+                  ),
+                  const Divider(height: 1, color: AppColors.hairline),
+                  _Row(
+                    icon: PhosphorIconsRegular.trash,
+                    title: 'Her şeyi sil ve baştan başla',
+                    subtitle:
+                        'Dersler, konular, notlar, fotoğraflar — hepsi '
+                        'gider. Uygulama ilk açılış hâline döner.',
+                    colour: AppColors.overdue,
+                    onTap: () => _confirm(
+                      context,
+                      title: 'Her şey silinsin mi?',
+                      body:
+                          'Derslerin, konuların, notların, fotoğrafların ve '
+                          'bütün geçmişin silinir. Uygulama ilk açılış hâline '
+                          'döner. Bu işlem geri alınamaz.',
+                      action: 'Her şeyi sil',
+                      destructive: true,
+                      onConfirm: () async {
+                        final paths = await ref
+                            .read(databaseProvider)
+                            .clearAll();
+                        await ref.read(photoStoreProvider).deleteAll(paths);
+                        // Yönlendirici kurulum bayrağını izliyor; bayrak
+                        // silinince karşılama ekranına kendiliğinden dönüyoruz.
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -164,8 +200,9 @@ class SettingsScreen extends ConsumerWidget {
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor:
-                  destructive ? AppColors.overdue : AppColors.accent,
+              backgroundColor: destructive
+                  ? AppColors.overdue
+                  : AppColors.accent,
               minimumSize: const Size(120, 44),
             ),
             onPressed: () => Navigator.of(context).pop(true),
@@ -178,8 +215,7 @@ class SettingsScreen extends ConsumerWidget {
 
     await onConfirm();
     if (done != null && context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(done)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(done)));
     }
   }
 }
@@ -228,16 +264,18 @@ class _Row extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.all(Gap.lg),
+        padding: const EdgeInsets.all(Gap.card),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // Daire değil yuvarlatılmış kare: Bugün ve Plan'daki zaman
+            // çizgisi düğümleriyle aynı biçim, uygulama tek dil konuşsun.
             DecoratedBox(
               decoration: BoxDecoration(
                 color: colour == AppColors.overdue
                     ? AppColors.overdueSoft
                     : AppColors.surfaceMuted,
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(Radii.sm),
               ),
               child: SizedBox.square(
                 dimension: 40,
@@ -262,6 +300,14 @@ class _Row extends StatelessWidget {
                   Text(subtitle, style: text.bodySmall),
                 ],
               ),
+            ),
+            const SizedBox(width: Gap.sm),
+            // Satırın dokunulabilir olduğunu söyleyen tek işaret; kart
+            // kenarsız olduğu için başka ipucu yok.
+            const Icon(
+              PhosphorIconsRegular.caretRight,
+              size: IconSize.sm,
+              color: AppColors.textTertiary,
             ),
           ],
         ),

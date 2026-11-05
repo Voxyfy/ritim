@@ -7,11 +7,9 @@ import '../../core/providers.dart';
 import '../../core/router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_metrics.dart';
-import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_fab.dart';
-import '../../core/widgets/circle_button.dart';
 import '../../core/widgets/illustration.dart';
-import '../../core/widgets/progress_ring.dart';
+import '../../core/widgets/timeline_node.dart';
 import '../../data/db/database.dart';
 import 'widgets/subject_editor_sheet.dart';
 
@@ -60,10 +58,10 @@ class SubjectsScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    // İki sütunlu renkli ızgara. Liste hâlinde her ders aynı
-                    // beyaz kartın içinde bir satırdı ve dersin rengi yalnızca
-                    // sekiz piksellik bir noktada yaşıyordu. Renk artık kartın
-                    // kendisinde: öğrenci Matematik'i adını okumadan bulur.
+                    // Izgara yerine alt alta satırlar. Pastel kartlarda renk
+                    // bütün yüzeyi kaplıyordu ve altı ders yan yana bir
+                    // yama işi gibi duruyordu; renk artık yalnızca düğümde ve
+                    // ince ilerleme çubuğunda, satırlar sayfanın zemininde.
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(
                         Gap.page,
@@ -71,18 +69,11 @@ class SubjectsScreen extends ConsumerWidget {
                         Gap.page,
                         Gap.listBottom,
                       ),
-                      sliver: SliverGrid.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: Gap.md,
-                              crossAxisSpacing: Gap.md,
-                              childAspectRatio: 0.92,
-                            ),
+                      sliver: SliverList.builder(
                         itemCount: list.length,
                         itemBuilder: (context, index) {
                           final subject = list[index];
-                          return SubjectCard(
+                          return _SubjectRow(
                             subject: subject,
                             completed: completed[subject.id] ?? 0,
                             total: totals[subject.id] ?? 0,
@@ -109,7 +100,7 @@ class SubjectsScreen extends ConsumerWidget {
 
   /// Uzun basıldığında ders düzenleme ve silme.
   ///
-  /// Kaydırma hareketi yerine uzun basma: ders kartı bir listeye değil bir
+  /// Kaydırma hareketi yerine uzun basma: ders satırı bir listeye değil bir
   /// ekrana götürüyor, kaydırmalı silme burada yanlışlıkla tetiklenmeye çok
   /// açık olurdu.
   void _showSubjectActions(
@@ -193,118 +184,96 @@ class SubjectsScreen extends ConsumerWidget {
   }
 }
 
-/// Izgaradaki ders kartı.
+/// Ders listesindeki tek satır.
 ///
-/// Zemin dersin soluk tonu, başlık dersin mürekkep rengi: kart bir rozetin
-/// büyütülmüş hâli gibi okunuyor ve etiketlerle aynı çifti paylaşıyor. Sol
-/// üstte beyaz daire içinde ilerleme halkası (her derste kiremit; dersler
-/// arası karşılaştırma için tek renk), sağ altta koyu daire içinde ok:
-/// "buraya git" işareti. Sağ üstteki büyük soluk halka süs değil, kartın
-/// köşesini boş bırakmamak için; referans aldığımız düzendeki karalama
-/// dokusunun sessiz karşılığı.
-class SubjectCard extends StatelessWidget {
-  const SubjectCard({
+/// Solda ders renginde düğüm ve baş harf, ortada ad, tek satırlık özet ve
+/// ince ilerleme çubuğu. Renk yalnızca düğümde ve çubukta: kimliği ad
+/// taşıyor, renk onu yalnızca hızlandırıyor. Çubuk her derste kendi
+/// mürekkebinde; dersler arası karşılaştırmayı uzunluk yapıyor, renk değil.
+class _SubjectRow extends StatelessWidget {
+  const _SubjectRow({
     required this.subject,
     required this.completed,
     required this.total,
     required this.onTap,
-    this.onLongPress,
-    super.key,
+    required this.onLongPress,
   });
 
   final Subject subject;
   final int completed;
   final int total;
   final VoidCallback onTap;
-  final VoidCallback? onLongPress;
+  final VoidCallback onLongPress;
 
   @override
   Widget build(BuildContext context) {
     final colour = SubjectPalette.at(subject.colorIndex);
     final text = Theme.of(context).textTheme;
+    final ratio = total == 0 ? 0.0 : completed / total;
 
-    return AppCard(
-      tint: colour.wash,
-      radius: Radii.lg,
-      padding: EdgeInsets.zero,
+    return InkWell(
       onTap: onTap,
       onLongPress: onLongPress,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(Radii.lg),
-        child: Stack(
+      borderRadius: BorderRadius.circular(Radii.md),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: Gap.md),
+        child: Row(
           children: [
-            Positioned(
-              top: -36,
-              right: -36,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: colour.ink.withValues(alpha: 0.10),
-                    width: 22,
-                  ),
-                ),
-                child: const SizedBox.square(dimension: 128),
+            // Çizgisiz düğüm: dersler bir sıra değil, yan yana duran ayrı
+            // işler; aralarına zaman çizgisi çekmek yanlış bir sıra ima eder.
+            SizedBox(
+              height: 52,
+              child: TimelineNode(
+                colour: colour,
+                letter: subject.name.characters.first,
+                done: false,
+                isFirst: true,
+                isLast: true,
+                size: 52,
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(Gap.lg),
+            const SizedBox(width: Gap.lg),
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DecoratedBox(
-                    decoration: const BoxDecoration(
-                      color: AppColors.surface,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(3),
-                      child: ProgressRing(
-                        completed: completed,
-                        total: total,
-                        size: 42,
-                        color: colour.ink,
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
                   Text(
                     subject.name,
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: text.titleMedium?.copyWith(
-                      fontSize: 17,
-                      height: 1.15,
-                      color: colour.ink,
+                    style: text.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: Gap.xs),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '$completed / $total konu',
-                          style: text.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ),
-                      // Ok düğmesi kartın kendisine dokunmakla aynı işi yapar;
-                      // ayrı bir hedef değil, kartın dokunulabilir olduğunu
-                      // söyleyen işaret. Bu yüzden onTap yok — dokunuş kartın
-                      // InkWell'ine düşüyor.
-                      const IgnorePointer(
-                        child: CircleButton.dark(
-                          icon: PhosphorIconsRegular.arrowUpRight,
-                          onTap: null,
-                          size: 36,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 2),
+                  Text(
+                    '$completed/$total konu · %${(ratio * 100).round()}',
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: Gap.sm),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(end: ratio),
+                    duration: Motion.slow,
+                    curve: Motion.curve,
+                    builder: (context, value, _) => LinearProgressIndicator(
+                      value: value,
+                      minHeight: 6,
+                      color: colour.ink,
+                      backgroundColor: AppColors.progressTrack,
+                      borderRadius: BorderRadius.circular(Radii.full),
+                    ),
                   ),
                 ],
               ),
+            ),
+            const SizedBox(width: Gap.md),
+            const Icon(
+              PhosphorIconsRegular.caretRight,
+              size: IconSize.md,
+              color: AppColors.textTertiary,
             ),
           ],
         ),

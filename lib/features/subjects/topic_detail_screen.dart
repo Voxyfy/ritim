@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -9,12 +8,14 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_metrics.dart';
 import '../../core/widgets/app_card.dart';
 import '../../core/widgets/app_fab.dart';
+import '../../core/widgets/timeline_node.dart';
 import '../../data/db/database.dart';
 import '../../data/db/tables.dart';
 import '../reminders/reminder_prompt.dart';
 import 'widgets/log_session_sheet.dart';
 import 'widgets/note_list.dart';
 import 'widgets/photo_strip.dart';
+
 /// Bir konunun her şeyi: durumu, notu, çalışma geçmişi.
 ///
 /// Ekranın omurgası "Çalıştım" düğmesi. Not ve geçmiş onun etrafında duruyor,
@@ -35,7 +36,6 @@ class TopicDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _TopicDetailScreenState extends ConsumerState<TopicDetailScreen> {
-
   @override
   Widget build(BuildContext context) {
     final topics = ref.watch(topicsProvider(widget.subjectId));
@@ -43,6 +43,14 @@ class _TopicDetailScreenState extends ConsumerState<TopicDetailScreen> {
     final sessions =
         ref.watch(sessionsProvider(widget.topicId)).valueOrNull ?? const [];
     final text = Theme.of(context).textTheme;
+    final subject = ref
+        .watch(subjectsProvider)
+        .valueOrNull
+        ?.where((s) => s.id == widget.subjectId)
+        .firstOrNull;
+    final colour = subject == null
+        ? const SubjectColor(AppColors.textSecondary, AppColors.surfaceMuted)
+        : SubjectPalette.at(subject.colorIndex);
 
     final topic = topics.valueOrNull
         ?.where((t) => t.id == widget.topicId)
@@ -55,13 +63,17 @@ class _TopicDetailScreenState extends ConsumerState<TopicDetailScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(topic.name)),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(Gap.page, Gap.sm, Gap.page, Gap.listBottom),
+        padding: const EdgeInsets.fromLTRB(
+          Gap.page,
+          Gap.sm,
+          Gap.page,
+          Gap.listBottom,
+        ),
         children: [
           _DoneToggle(
             done: topic.status == TopicStatus.done,
-            onChanged: (value) => ref
-                .read(databaseProvider)
-                .setTopicDone(topic.id, done: value),
+            onChanged: (value) =>
+                ref.read(databaseProvider).setTopicDone(topic.id, done: value),
           ),
           if (totals != null && totals.minutes > 0) ...[
             const SizedBox(height: Gap.xl),
@@ -95,10 +107,12 @@ class _TopicDetailScreenState extends ConsumerState<TopicDetailScreen> {
               style: text.bodySmall,
             )
           else
-            for (final session in sessions)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: _SessionTile(session: session),
+            for (final (i, session) in sessions.indexed)
+              _SessionTile(
+                session: session,
+                colour: colour,
+                isFirst: i == 0,
+                isLast: i == sessions.length - 1,
               ),
         ],
       ),
@@ -137,32 +151,37 @@ class _DoneToggle extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
 
-    return AppCard(
-      padding: const EdgeInsets.fromLTRB(18, 10, 12, 10),
+    // Kart yok: tek satırlık bir anahtar sayfanın zemininde yeterince
+    // belirgin; kutu, altındaki özet kartıyla aynı ağırlıkta görünüyordu.
+    return InkWell(
       onTap: () => onChanged(!done),
-      child: Row(
-        children: [
-          Icon(
-            done
-                ? PhosphorIconsFill.checkCircle
-                : PhosphorIconsRegular.circleDashed,
-            size: IconSize.md,
-            color: done ? AppColors.progress : AppColors.textTertiary,
-          ),
-          const SizedBox(width: Gap.md),
-          Expanded(
-            child: Text(
-              done ? 'Bu konuyu bitirdin' : 'Bu konuyu bitirdim',
-              style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+      borderRadius: BorderRadius.circular(Radii.md),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: Gap.xs),
+        child: Row(
+          children: [
+            Icon(
+              done
+                  ? PhosphorIconsFill.checkCircle
+                  : PhosphorIconsRegular.circleDashed,
+              size: IconSize.md,
+              color: done ? AppColors.progress : AppColors.textTertiary,
             ),
-          ),
-          Switch(
-            value: done,
-            activeThumbColor: AppColors.surface,
-            activeTrackColor: AppColors.progress,
-            onChanged: onChanged,
-          ),
-        ],
+            const SizedBox(width: Gap.md),
+            Expanded(
+              child: Text(
+                done ? 'Bu konuyu bitirdin' : 'Bu konuyu bitirdim',
+                style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
+            Switch(
+              value: done,
+              activeThumbColor: AppColors.surface,
+              activeTrackColor: AppColors.progress,
+              onChanged: onChanged,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -234,48 +253,79 @@ class _Stat extends StatelessWidget {
   }
 }
 
+/// Çalışma geçmişindeki tek kayıt.
+///
+/// Bugün ekranıyla aynı zaman çizgisi: düğümde ayın günü, satırda süre ve
+/// tek satırlık özet. Kayıtlar kutularda değil sayfada; geçmiş bir yığın
+/// değil, art arda gelen oturumlar olarak okunmalı.
 class _SessionTile extends StatelessWidget {
-  const _SessionTile({required this.session});
+  const _SessionTile({
+    required this.session,
+    required this.colour,
+    required this.isFirst,
+    required this.isLast,
+  });
 
   final StudySession session;
+  final SubjectColor colour;
+  final bool isFirst;
+  final bool isLast;
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     final solved = session.questionsSolved;
     final wrong = session.questionsWrong ?? 0;
+    final meta = [
+      DateFormat('d MMM', 'tr_TR').format(session.studiedAt),
+      if (solved != null) '$solved soru · $wrong yanlış',
+    ];
 
-    return AppCard(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Row(
-            children: [
-              Text(
-                DateFormat('d MMM', 'tr_TR').format(session.studiedAt),
-                style: text.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textSecondary,
-                ),
-              ),
-              const SizedBox(width: Gap.md),
-              Text(
-                '${session.minutes} dk',
-                style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const Spacer(),
-              if (solved != null)
-                Text(
-                  '$solved soru · $wrong yanlış',
-                  style: text.bodySmall,
-                ),
-            ],
+          TimelineNode(
+            colour: colour,
+            letter: '${session.studiedAt.day}',
+            done: false,
+            isFirst: isFirst,
+            isLast: isLast,
+            size: 36,
           ),
-          if (session.note != null) ...[
-            const SizedBox(height: Gap.sm),
-            Text(session.note!, style: text.bodySmall?.copyWith(height: 1.4)),
-          ],
+          const SizedBox(width: Gap.md),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: Gap.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    '${session.minutes} dk',
+                    style: text.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    meta.join(' · '),
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                  if (session.note != null) ...[
+                    const SizedBox(height: Gap.xs),
+                    Text(
+                      session.note!,
+                      style: text.bodySmall?.copyWith(height: 1.4),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

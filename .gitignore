@@ -76,3 +76,6 @@ migrate_working_dir/
 # 13 MB'lık ikili dosya ve her gönderimde yeniden üretilebiliyor
 # (integration_test/review_walkthrough_test.dart + simctl recordVideo).
 review-assets/
+
+# RevenueCat SDK anahtarı (yerel; örnek: config/revenuecat.example.json)
+config/revenuecat.json

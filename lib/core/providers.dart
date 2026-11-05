@@ -4,6 +4,7 @@ import '../data/db/database.dart';
 import '../data/photo_store.dart';
 import '../data/templates/study_template.dart';
 import '../domain/exam_scoring.dart';
+import '../domain/focus_timer.dart';
 import 'day_tracker.dart';
 import 'notifications.dart';
 /// Veritabanı uygulama başına bir kez oluşturulur, kapanışta da kapatılır.
@@ -143,4 +144,13 @@ final todayTasksProvider = StreamProvider<List<TaskItem>>(
   (ref) => ref.watch(databaseProvider).watchTasksUpTo(
         ref.watch(currentDayProvider),
       ),
+);
+
+/// Süren odak sayacı; yoksa `null`. Bugün ekranındaki "Odak sürüyor" çubuğunu
+/// besler — süreç ölüp uygulama yeniden açılsa da ayardan okunduğu için kalır.
+final focusTimerProvider = StreamProvider<FocusTimer?>(
+  (ref) => ref
+      .watch(databaseProvider)
+      .watchSetting(SettingKeys.focusTimer)
+      .map(FocusTimer.decode),
 );

@@ -73,16 +73,9 @@ void main() {
         }
       }
 
-      // 3. Tanıtım adımları.
-      for (var i = 0; i < 3; i++) {
-        if (find.text('Devam').evaluate().isNotEmpty) {
-          await dokun(tester, find.text('Devam'));
-        } else if (find.text('Başla').evaluate().isNotEmpty) {
-          await dokun(tester, find.text('Başla'));
-        }
-      }
-      if (find.text('Atla').evaluate().isNotEmpty) {
-        await dokun(tester, find.text('Atla'));
+      // 3. Tek ekranlık tanıtım.
+      if (find.text('Başla').evaluate().isNotEmpty) {
+        await dokun(tester, find.text('Başla'));
       }
     }
 

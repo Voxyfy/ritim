@@ -6,6 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:ritim/core/providers.dart';
 import 'package:ritim/data/db/database.dart';
+import 'package:ritim/data/db/tables.dart';
 import 'package:ritim/data/templates/study_template.dart';
 import 'package:ritim/main.dart';
 /// 2. günün vaadini doğrular: ilk açılış kuruluma, tamamlanmış kurulum
@@ -87,15 +88,20 @@ void main() {
     await tester.tap(commit);
     await tester.pumpAndSettle();
 
-    // Şablon seçiminden sonra sıra üç adımlık tanıtımda.
-    expect(find.text('Konularını takip et'), findsOneWidget);
+    // Şablon seçiminden sonra sıra tek ekranlık tanıtımda.
+    expect(find.text('Daireye dokun, süreyi seç'), findsOneWidget);
     expect(await db.isOnboarded, isTrue);
 
-    await tester.tap(find.text('Atla'));
+    await tester.tap(find.text('Başla'));
     await tester.pumpAndSettle();
 
     // Bizi taşıyan şey bayrağın değişmesi oldu, birinin ekran itmesi değil.
-    expect(find.text('Bugün planın boş'), findsOneWidget);
+    // Şablonla birlikte plan da kuruldu: Bugün boş değil, ilk konular hazır.
+    expect(find.text('Bugün planın boş'), findsNothing);
+    expect(find.text('Üslü İfadeler'), findsWidgets);
+    final planned = await db.select(db.tasks).get();
+    expect(planned, isNotEmpty);
+    expect(planned.every((t) => t.source == TaskSource.plan), isTrue);
 
     await disposeApp(tester);
   });
@@ -140,11 +146,13 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Devam et'));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Atla'));
+    await tester.tap(find.text('Başla'));
     await tester.pumpAndSettle();
 
+    // Konu olmadığı için plan da yok; boş ekran burada beklenen durum.
     expect(find.text('Bugün planın boş'), findsOneWidget);
     expect(await db.select(db.subjects).get(), isEmpty);
+    expect(await db.select(db.tasks).get(), isEmpty);
 
     await disposeApp(tester);
   });

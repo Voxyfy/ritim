@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../../../core/date_extensions.dart';
 import '../../../core/providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_metrics.dart';
 import '../../../data/db/database.dart';
+import '../../../domain/quick_add_parser.dart';
+
 /// Görev ekleme sayfası.
 ///
-/// Tek zorunlu alan başlık. Ders ve gün seçimi tek dokunuşluk rozetler:
-/// hızlı bir not almak için form doldurma hissi vermemesi gerekiyor.
+/// Tek zorunlu alan başlık. Satır akıllı: "yarın mat türev" yazan öğrenci
+/// gün, ders ve konuyu rozetlerde görür, Enter'a basıp geçer. Alttaki ders
+/// ve gün rozetleri elle düzeltme için duruyor; dokunulan rozet çözümlemenin
+/// o kısmını geçersiz kılar.
 class AddTaskSheet extends ConsumerStatefulWidget {
   const AddTaskSheet({super.key});
 
@@ -31,15 +36,56 @@ class AddTaskSheet extends ConsumerStatefulWidget {
 }
 
 class _AddTaskSheetState extends ConsumerState<AddTaskSheet> {
-  final _controller = TextEditingController();
+  final _controller = _QuickAddController();
   final _focus = FocusNode();
+
+  /// Elle seçilen ders; [_subjectPinned] yanlışken çözümleme geçerli.
   int? _subjectId;
+  bool _subjectPinned = false;
   int _dayOffset = 0;
+  bool _dayPinned = false;
+
+  /// Kullanıcının rozetine dokunarak kaldırdığı yorumlar.
+  final _ignored = <QuickAddPart>{};
   bool _saving = false;
+
+  QuickAddResult _parsed = const QuickAddResult(title: '');
 
   /// Başlıksız bir görev kaydedilemez. Bunu basıldığında sessizce geri dönerek
   /// anlatmak yerine düğmenin görünüşüne taşıdık: başlık boşken düğme sönük.
-  bool get _canSave => !_saving && _controller.text.trim().isNotEmpty;
+  bool get _canSave => !_saving && _parsed.title.trim().isNotEmpty;
+
+  int? get _effectiveSubjectId =>
+      _subjectPinned ? _subjectId : _parsed.subjectId;
+  int get _effectiveDay => _dayPinned ? _dayOffset : _parsed.dayOffset ?? 0;
+
+  /// Her çizimde yeniden çözümlenir: dersler/konular akıştan geç gelebilir
+  /// ve elle seçim değiştiğinde aynı metnin yorumu da değişmeli.
+  QuickAddResult _parse(List<Subject> subjects) {
+    final pool = _subjectPinned
+        ? subjects.where((s) => s.id == _subjectId)
+        : subjects;
+    final result = QuickAddParser.parse(
+      _controller.text,
+      today: today(),
+      ignore: {..._ignored, if (_dayPinned) QuickAddPart.day},
+      subjects: [
+        for (final s in pool)
+          QuickAddSubject(
+            id: s.id,
+            name: s.name,
+            topics: [
+              for (final t
+                  in ref.watch(topicsProvider(s.id)).valueOrNull ??
+                      const <Topic>[])
+                QuickAddTopic(id: t.id, name: t.name),
+            ],
+          ),
+      ],
+    );
+    _controller.spans = result.spans;
+    return result;
+  }
 
   @override
   void initState() {
@@ -62,22 +108,29 @@ class _AddTaskSheetState extends ConsumerState<AddTaskSheet> {
 
   Future<void> _save() async {
     if (!_canSave) return;
-    final title = _controller.text.trim();
+    final title = _parsed.title.trim();
+    final subjectId = _effectiveSubjectId;
+    final dayOffset = _effectiveDay;
 
     setState(() => _saving = true);
 
-    // Ders seçildiyse görev, o dersin ilk konusuna bağlanır. Konu seçimi 4.
-    // günde geleceği için şimdilik ders rozeti listede rengi taşımaya yarıyor.
-    int? topicId;
-    if (_subjectId != null) {
-      final topics = await ref.read(databaseProvider).watchTopics(_subjectId!).first;
+    // Konu çözümlendiyse görev ona bağlanır. Yalnız ders varsa dersin ilk
+    // konusuna: görev satırı rengini konunun dersinden alıyor.
+    var topicId = _parsed.topicId;
+    if (topicId == null && subjectId != null) {
+      final topics = await ref
+          .read(databaseProvider)
+          .watchTopics(subjectId)
+          .first;
       topicId = topics.isNotEmpty ? topics.first.id : null;
     }
 
     try {
-      await ref.read(databaseProvider).addTask(
+      await ref
+          .read(databaseProvider)
+          .addTask(
             title: title,
-            dueOn: today().addDays(_dayOffset),
+            dueOn: today().addDays(dayOffset),
             topicId: topicId,
           );
 
@@ -94,8 +147,16 @@ class _AddTaskSheetState extends ConsumerState<AddTaskSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final subjects = ref.watch(subjectsProvider).valueOrNull ?? const <Subject>[];
+    final subjects =
+        ref.watch(subjectsProvider).valueOrNull ?? const <Subject>[];
     final insets = MediaQuery.viewInsetsOf(context).bottom;
+    _parsed = _parse(subjects);
+    final parsedSubject = _parsed.subjectId == null
+        ? null
+        : subjects.where((s) => s.id == _parsed.subjectId).firstOrNull;
+    final parsedColour = parsedSubject == null
+        ? null
+        : SubjectPalette.at(parsedSubject.colorIndex);
 
     return Padding(
       padding: EdgeInsets.only(bottom: insets),
@@ -121,6 +182,7 @@ class _AddTaskSheetState extends ConsumerState<AddTaskSheet> {
                 controller: _controller,
                 focusNode: _focus,
                 textCapitalization: TextCapitalization.sentences,
+                textInputAction: TextInputAction.done,
                 onSubmitted: (_) => _save(),
                 decoration: const InputDecoration(
                   hintText: 'Ne yapacaksın?',
@@ -133,19 +195,60 @@ class _AddTaskSheetState extends ConsumerState<AddTaskSheet> {
                   color: AppColors.textPrimary,
                 ),
               ),
+              if (_parsed.spans.isNotEmpty ||
+                  (!_subjectPinned && parsedSubject != null)) ...[
+                const SizedBox(height: Gap.sm),
+                Wrap(
+                  spacing: Gap.sm,
+                  runSpacing: Gap.sm,
+                  children: [
+                    if (!_subjectPinned && parsedSubject != null)
+                      _ParsedChip(
+                        label: parsedSubject.name,
+                        colour: parsedColour,
+                        // Konu dersi ima ettiği için onunla birlikte gider;
+                        // yoksa konu, kaldırılan dersi geri getiriyordu.
+                        onRemove: () => setState(() {
+                          _ignored
+                            ..add(QuickAddPart.subject)
+                            ..add(QuickAddPart.topic);
+                        }),
+                      ),
+                    if (_parsed.topicName != null)
+                      _ParsedChip(
+                        label: _parsed.topicName!,
+                        colour: parsedColour,
+                        onRemove: () =>
+                            setState(() => _ignored.add(QuickAddPart.topic)),
+                      ),
+                    if (_parsed.dayLabel != null)
+                      _ParsedChip(
+                        label: _parsed.dayLabel!,
+                        onRemove: () =>
+                            setState(() => _ignored.add(QuickAddPart.day)),
+                      ),
+                  ],
+                ),
+              ],
               const SizedBox(height: Gap.md),
               Row(
                 children: [
                   _ChoiceChip(
                     label: 'Bugün',
-                    selected: _dayOffset == 0,
-                    onTap: () => setState(() => _dayOffset = 0),
+                    selected: _effectiveDay == 0,
+                    onTap: () => setState(() {
+                      _dayPinned = true;
+                      _dayOffset = 0;
+                    }),
                   ),
                   const SizedBox(width: Gap.sm),
                   _ChoiceChip(
                     label: 'Yarın',
-                    selected: _dayOffset == 1,
-                    onTap: () => setState(() => _dayOffset = 1),
+                    selected: _effectiveDay == 1,
+                    onTap: () => setState(() {
+                      _dayPinned = true;
+                      _dayOffset = 1;
+                    }),
                   ),
                 ],
               ),
@@ -160,16 +263,17 @@ class _AddTaskSheetState extends ConsumerState<AddTaskSheet> {
                     itemBuilder: (context, index) {
                       final subject = subjects[index];
                       final colour = SubjectPalette.at(subject.colorIndex);
-                      final selected = _subjectId == subject.id;
+                      final selected = _effectiveSubjectId == subject.id;
                       return _ChoiceChip(
                         label: subject.name,
                         selected: selected,
                         colour: colour,
                         // İkinci dokunuş seçimi kaldırır: dersi yanlış seçen
                         // kullanıcının sayfayı kapatması gerekmesin.
-                        onTap: () => setState(
-                          () => _subjectId = selected ? null : subject.id,
-                        ),
+                        onTap: () => setState(() {
+                          _subjectPinned = true;
+                          _subjectId = selected ? null : subject.id;
+                        }),
                       );
                     },
                   ),
@@ -203,8 +307,8 @@ class _ChoiceChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ink = colour?.ink ?? AppColors.accent;
-    final wash = colour?.wash ?? AppColors.accentSoft;
+    final ink = colour?.ink ?? AppColors.selection;
+    final wash = colour?.wash ?? AppColors.surfaceMuted;
 
     return GestureDetector(
       onTap: onTap,
@@ -229,5 +333,93 @@ class _ChoiceChip extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+/// Çözümlemenin bulduğu tek bir yorum; dokununca o yorum kaldırılır.
+///
+/// Yanlış yorumu düzeltmek için metni silip yeniden yazmak gerekmesin diye
+/// rozetin tamamı dokunma alanı, çarpı yalnızca işaret.
+class _ParsedChip extends StatelessWidget {
+  const _ParsedChip({required this.label, required this.onRemove, this.colour});
+
+  final String label;
+  final VoidCallback onRemove;
+  final SubjectColor? colour;
+
+  @override
+  Widget build(BuildContext context) {
+    final ink = colour?.ink ?? AppColors.textPrimary;
+    return Semantics(
+      button: true,
+      label: '$label yorumunu kaldır',
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTap: onRemove,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(10, 5, 8, 5),
+          decoration: BoxDecoration(
+            color: colour?.wash ?? AppColors.surfaceMuted,
+            borderRadius: BorderRadius.circular(Radii.full),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: ink,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12.5,
+                ),
+              ),
+              const SizedBox(width: Gap.xs),
+              Icon(PhosphorIconsRegular.x, size: 12, color: ink),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Yorumlanan kelimeleri soluk çizen metin denetleyicisi: öğrenci hangi
+/// kelimenin rozete dönüştüğünü, başlıkta neyin kaldığını yazarken görür.
+class _QuickAddController extends TextEditingController {
+  List<QuickAddSpan> spans = const [];
+
+  @override
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    TextStyle? style,
+    required bool withComposing,
+  }) {
+    // Klavye kelime birleştirirken (composing) altını çizdiği aralığı
+    // bozmamak için Flutter'ın kendi çizimine bırakılıyor.
+    final composing = withComposing && value.isComposingRangeValid;
+    if (spans.isEmpty || composing) {
+      return super.buildTextSpan(
+        context: context,
+        style: style,
+        withComposing: withComposing,
+      );
+    }
+    final faded = style?.copyWith(color: AppColors.textTertiary);
+    final children = <TextSpan>[];
+    var cursor = 0;
+    for (final span in spans) {
+      if (span.end > text.length) break;
+      if (span.start > cursor) {
+        children.add(TextSpan(text: text.substring(cursor, span.start)));
+      }
+      children.add(
+        TextSpan(text: text.substring(span.start, span.end), style: faded),
+      );
+      cursor = span.end;
+    }
+    if (cursor < text.length) {
+      children.add(TextSpan(text: text.substring(cursor)));
+    }
+    return TextSpan(style: style, children: children);
   }
 }

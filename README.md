@@ -374,7 +374,9 @@ App Review'a verilen cevap: [`docs/app-review-reply.md`](docs/app-review-reply.m
 
 ```bash
 flutter test && flutter analyze
-flutter build ipa --release
+# Mağaza derlemesi RevenueCat anahtarı ister (config/revenuecat.example.json'a bakın).
+# Anahtarsız derleme satın alma ekranı olmadan, tamamen açık çalışır.
+flutter build ipa --release --dart-define-from-file=config/revenuecat.json
 open build/ios/archive/Runner.xcarchive   # Distribute App → App Store Connect
 ```
 

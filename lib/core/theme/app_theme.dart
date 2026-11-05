@@ -135,6 +135,18 @@ abstract final class AppTheme {
           ),
         ),
       ),
+      // Yazı düğmeleri ("Geri al", "Ayrıntı", "Vazgeç") temasızdı ve sistem
+      // yazı tipine düşüyordu; satın alma ekranının görüntüsünde yakalandı.
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: AppColors.textPrimary,
+          textStyle: const TextStyle(
+            fontFamily: _family,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: AppColors.background,
         surfaceTintColor: Colors.transparent,
