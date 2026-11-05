@@ -48,6 +48,10 @@ void main() {
   const boyutlar = <_Cihaz>[
     // iPhone 16/17 Pro Max — bugün zorunlu olan tek iPhone yuvası.
     _Cihaz(ad: 'ios-6.9', mantiksal: Size(440, 956), olcek: 3), // 1320x2868
+    // iPhone 16/17 Pro ve 17: App Store Connect 2026 sonbaharında bu yuvayı
+    // ("Dynamic Island, medium display") zorunlu kıldı ve yalnızca
+    // 1179x2556 ya da 1206x2622 kabul ediyor.
+    _Cihaz(ad: 'ios-6.3', mantiksal: Size(402, 874), olcek: 3), // 1206x2622
     // iPhone 14/15 Pro Max, 15/16 Plus.
     _Cihaz(ad: 'ios-6.7', mantiksal: Size(430, 932), olcek: 3), // 1290x2796
     // iPhone 11 Pro Max, XS Max, 11, XR.
